@@ -184,6 +184,127 @@ router.get('/callback', async (ctx, next) => {
 
 });
 
+/* --- Plan creation CORS endpoint --- */
+// Sandbox Web Workers used by Admin UI Extensions requires CORS access.
+/* Accessed like this from Web Workers.
+fetch(`https://fb34-2400-2410-2fc0-fb00-d4e2-f57f-90a6-bdd6.jp.ngrok.io/create?your_key=your_value&token=YOUR_SESSION_TOKEN`, {
+      method: "POST"
+    }).then(res => {
+      res.json().then(json => {
+        console.log(`${JSON.stringify(json)}`);
+      }).catch(e => {
+        console.log(`${e}`);
+      });
+    }).catch(e => {
+      console.log(`error: ${e}`);
+    });
+*/
+router.post('/create', async (ctx, next) => {
+  console.log("------------ create ------------");
+  console.log(`request ${JSON.stringify(ctx.request, null, 4)}`);
+  console.log(`query ${JSON.stringify(ctx.request.query, null, 4)}`);
+  console.log(`body ${JSON.stringify(ctx.request.body, null, 4)}`);
+
+  // if a wrong token is passed with a ummatched signature, decodeJWT fails with an exeption = works as verification as well.
+  let decoded_token = null;
+  try {
+    decoded_token = decodeJWT(ctx.request.query.token);
+  } catch (e) {
+    console.log(`${e}`);
+  }
+  if (decoded_token == null) {
+    ctx.body = { "Error": "Wrong token passed." };
+    ctx.status = 400;
+    return;
+  }
+  console.log(`decoded_token ${JSON.stringify(decoded_token, null, 4)}`);
+
+  const shop = getShopFromAuthToken(ctx.request.query.token);
+
+  const product_id = ctx.request.query.product_id;
+  const variant_id = ctx.request.query.variant_id;
+  const title = ctx.request.query.title;
+  const days = parseInt(ctx.request.query.days);
+
+  // See https://shopify.dev/docs/apps/selling-strategies/subscriptions/selling-plans/manage
+  let response_data = {};
+  try {
+    const api_res = await (callGraphql(ctx, shop, `mutation sellingPlanGroupCreate($input: SellingPlanGroupInput!, $resources: SellingPlanGroupResourceInput!) {
+      sellingPlanGroupCreate(input: $input, resources: $resources) {
+        sellingPlanGroup {
+          id
+          name
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+    `, null, GRAPHQL_PATH_ADMIN, {
+      "input": {
+        "merchantCode": "my-subscription",
+        "name": "My Subscription",
+        "options": [
+          "My Daily Option 1"
+        ],
+        "position": 1,
+        "sellingPlansToCreate": [
+          {
+            "name": title,
+            "options": "1 Day(s)",
+            "position": 1,
+            "category": "SUBSCRIPTION",
+            "billingPolicy": {
+              "recurring": {
+                "interval": "DAY",
+                "intervalCount": days,
+                "anchors": {
+                  "type": "WEEKDAY",
+                  "day": 1
+                }
+              }
+            },
+            "deliveryPolicy": {
+              "recurring": {
+                "interval": "DAY",
+                "intervalCount": days,
+                "anchors": {
+                  "type": "WEEKDAY",
+                  "day": 1
+                },
+                "preAnchorBehavior": "ASAP",
+                "cutoff": 0,
+                "intent": "FULFILLMENT_BEGIN"
+              }
+            },
+            "pricingPolicies": [
+            ]
+          }
+        ],
+        "sellingPlansToDelete": [
+        ],
+        "sellingPlansToUpdate": [
+        ]
+      },
+      "resources": {
+        "productIds": [
+          product_id
+        ],
+        "productVariantIds": (variant_id === '' ? [] : [variant_id])
+      }
+    }));
+    response_data = api_res.data;
+  } catch (e) {
+    console.log(`${JSON.stringify(e)}`);
+  }
+
+  ctx.set('Content-Type', 'application/json');
+  ctx.body = response_data;
+  ctx.status = 200;
+
+});
+
 
 /* --- App proxies sample endpoint --- */
 // See https://shopify.dev/apps/online-store/app-proxies
