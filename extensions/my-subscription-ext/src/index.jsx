@@ -39,13 +39,32 @@ extend(
 //const APP_URL = `YOUR_APP_URL_IN_APP_SETTINGS (https://xxxxxxx without the last slash '/')`;
 const APP_URL = `https://bef2-2400-2410-2fc0-fb00-31fd-5cf1-c6e6-1d1b.ngrok-free.app`;
 
+// See https://shopify.dev/docs/apps/selling-strategies/purchase-options/app-extensions/extension-points#product-details-page
 function App() {
   const { extensionPoint } = useExtensionApi();
+  const data = useData();
+  const { getSessionToken } = useSessionToken();
+  const { close, done } = useContainer();
+
   return (
     <BlockStack>
       <TextBlock>Welcome to the {extensionPoint} extension!</TextBlock>
       <TextBlock>For selling plan Add / Edit / Remove, refer to <Link external="true" url="https://shopify.dev/docs/apps/selling-strategies/subscriptions/selling-plans/manage">
         Shopify dev. site tutorials</Link> to integrate them.</TextBlock>
+      <Card title="Your selected data" sectioned="true">
+        <InlineStack spacing="loose">
+          <Text appearance="subdued" strong>Product:</Text><Text appearance="code">{data.productId}</Text>
+        </InlineStack>
+        <InlineStack spacing="loose">
+          <Text appearance="subdued" emphasized>Variant:</Text><Text appearance="code">{data.variantId}</Text>
+        </InlineStack>
+        <InlineStack spacing="loose">
+          <Text appearance="subdued" strong>Selling Plan Group:</Text><Text appearance="code">{data.sellingPlanGroupId}</Text>
+        </InlineStack>
+        <InlineStack spacing="loose">
+          <Text appearance="subdued" emphasized>Variants:</Text><Text appearance="code">{data.variantIds}</Text>
+        </InlineStack>
+      </Card>
     </BlockStack>
   );
 }

@@ -4,13 +4,18 @@
   See https://shopify.dev/docs/apps/selling-strategies/subscriptions/modeling
   See https://shopify.dev/docs/api/ajax/reference/cart
   See https://shopify.dev/docs/themes/pricing-payments/purchase-options/support-purchase-options
+  See https://shopify.dev/docs/themes/pricing-payments/purchase-options/subscription-ux-guidelines
+
+  NOTE THAT writing JavaScript directly in this file sometimes fails in complete DOM loading due to the script insertion timing 
+  in browsers, so DOM handling JavaScript should be in 'assets/***.js' which is insluded in <header></header>.
+
+  Liquid code can be written in this file only so keep the scripts working with Liquid still here.
+
+  Scripts for form manipulation are in 'assets/my-theme-contact.js'.
   -->
-<script>
-  const subscription = document.createElement('div');
-  subscription.innerHTML = `
-  <fieldset id="my-subscription">
-  <legend>Subscription Purchase</legend>
-  {% for selling_plan_group in product.selling_plan_groups %}
+<fieldset id="my-subscription">
+  <legend>Choose your subscription plan</legend>
+   {% for selling_plan_group in product.selling_plan_groups %}
     {% for selling_plan in selling_plan_group.selling_plans %}
       <div>
         <input
@@ -18,58 +23,39 @@
           id="{{ selling_plan.id }}"
           name="purchase_option"
           value="{{ selling_plan.id }}"
+          onClick="radio_click(this);"
           >
         <label for="{{ selling_plan.id }}">
-          {{ selling_plan.name }}
+          {{ selling_plan.name }} ({{ selling_plan.id }})
         </label>
       </div>
     {% endfor %}
-  {% endfor %}
-  </fieldset>
-  `;
-
-  // Checking if this product has selling plans or not.
-  let append = false;
-  if (subscription.querySelectorAll('#my-subscription div').length > 0) append = true;
-
-  // If the product has selling plans, append the subscription selection.
-  if (append) {
-    const forms = document.querySelectorAll('form');
-    forms.forEach((form) => {
-      if (form.action.indexOf('/cart/add') > -1) {
-        // Adding the subscription options to the existing form.
-        form.appendChild(subscription);
-
-        // Getting or creating a selling plan option hidden parameter in the form.
-        const inputs = form.querySelectorAll("input[name='selling_plan']");
-        let input = null;
-        if (inputs.length > 0) {
-         input = inputs[0];
-        } else {
-         input = document.createElement('input');
-         input.name = 'selling_plan';
-         input.type = 'hidden';
-         form.appendChild(input);
-        }
-
-        // Adding the onClick event to set the selected plan to the hidden tag above.
-        const radios = subscription.querySelectorAll("#my-subscription input[type='radio']");
-        radios.forEach((radio) => {
-        radio.onClick = ((obj) => {
-          input.value = obj.value;
-        })(radio);
-       });
-      }
-    });
-  }
-  
-</script>
+   {% endfor %}
+   <div>
+      <input
+        type="radio"
+        id="na99999"
+        name="purchase_option"
+        value=""
+        onClick="radio_click(this);" 
+        checked>
+        <label for="na99999">
+          One-time purchase
+        </label>
+      </div>
+   <div>
+    <strong>Follow the 
+      <a href="https://shopify.dev/docs/themes/pricing-payments/purchase-options/subscription-ux-guidelines" target="_blank">
+      UX design guideline</a> for real app development.</strong>
+  </div>
+</fieldset>
 
 {% schema %}
   {
     "name": "My Subscription Contract",
     "target": "section",
-    "stylesheet": "my-theme.css",
+    "stylesheet": "my-theme-contact.css",
+    "javascript": "my-theme-contact.js",
     "settings": []
   }
 {% endschema %}
