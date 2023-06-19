@@ -306,19 +306,117 @@ router.post('/create', async (ctx, next) => {
 });
 
 // Subscription admin link
-// https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/create
+// See https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/create
+// See https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/update
 router.get('/subscriptions', async (ctx, next) => {
   console.log("+++++++++++++++ /subscriptions +++++++++++++++");
+
+  // Access by AppBride::authenticatedFetch
+  if (typeof ctx.request.header.authorization !== UNDEFINED) {
+    console.log('Authenticated fetch');
+    const token = getTokenFromAuthHeader(ctx);
+    if (!checkAuthFetchToken(token)[0]) {
+      ctx.body.result.message = "Signature unmatched. Incorrect authentication bearer sent";
+      ctx.status = 400;
+      return;
+    }
+
+    ctx.set('Content-Type', 'application/json');
+    ctx.body = {
+      "result": {
+        "message": "",
+        "response": {}
+      }
+    };
+
+    const shop = getShopFromAuthToken(token);
+    const customer_id = ctx.request.query.customer_id;
+    const id = ctx.request.query.id;
+
+    let shop_data = null;
+    try {
+      shop_data = await (getDB(shop));
+      if (shop_data == null) {
+        ctx.body.result.message = "Authorization failed. No shop data";
+        ctx.status = 400;
+        return;
+      }
+    } catch (e) {
+      ctx.body.result.message = "Internal error in retrieving shop data";
+      ctx.status = 500;
+      return;
+    }
+
+    let api_res = null;
+    try {
+      api_res = await (callGraphql(ctx, shop, `{
+        subscriptionContract(id: "gid://shopify/SubscriptionContract/${id}"){
+          id
+          billingPolicy {
+            interval
+            intervalCount
+            maxCycles
+            minCycles
+          }
+          customer {
+              id
+              email
+          }
+          customerPaymentMethod {
+              id
+              instrument {
+                ... on CustomerCreditCard {
+                  brand
+                  maskedNumber
+                  name
+                  source
+                }
+              }
+          }
+          deliveryPolicy {
+              interval
+              intervalCount
+          }
+          lastPaymentStatus
+          nextBillingDate
+          status
+          billingAttempts(first: 10) {
+            edges {
+              node {
+                id
+                nextActionUrl
+                createdAt
+                errorCode
+                errorMessage
+              }
+            }
+          }
+          orders(first: 10) {
+            edges {
+              node {
+                id
+                name
+              }
+            }
+          }                
+        }
+      }
+      `, null, GRAPHQL_PATH_ADMIN, null));
+    } catch (e) {
+      console.log(`${JSON.stringify(e)}`);
+    }
+
+    ctx.body.result.response = api_res;
+    ctx.status = 200;
+    return;
+  }
+
   if (!checkSignature(ctx.request.query)) {
     ctx.status = 400;
     return;
   }
 
   const shop = ctx.request.query.shop;
-  const customer_id = ctx.request.query.customer_id;
-  const id = ctx.request.query.id;  
-
-  // See https://shopify.dev/apps/store/security/iframe-protection
   setContentSecurityPolicy(ctx, shop);
   await ctx.render('index', {});
 

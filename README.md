@@ -11,7 +11,7 @@ This app is cloned and modified from [this sample](https://github.com/benzookapi
 SHOPIFY_API_KEY:              YOUR_API_KEY (Copy and paste from your app settings in partner dashboard)
 SHOPIFY_API_SECRET:           YOUR_API_SECRET (Copy and paste from your app settings in partner dashboard)
 SHOPIFY_API_VERSION:          unstable
-SHOPIFY_API_SCOPES:           write_products,write_orders,read_customer_payment_methods,read_own_subscription_contracts,write_own_subscription_contracts
+SHOPIFY_API_SCOPES:           write_products,write_orders,read_customer_payment_methods,read_own_subscription_contracts,write_own_subscription_contracts,read_customers
 
 SHOPIFY_DB_TYPE:              MONGODB (Default) / POSTGRESQL / MYSQL
 
