@@ -305,6 +305,25 @@ router.post('/create', async (ctx, next) => {
 
 });
 
+// Subscription admin link
+// https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/create
+router.get('/subscriptions', async (ctx, next) => {
+  console.log("+++++++++++++++ /subscriptions +++++++++++++++");
+  if (!checkSignature(ctx.request.query)) {
+    ctx.status = 400;
+    return;
+  }
+
+  const shop = ctx.request.query.shop;
+  const customer_id = ctx.request.query.customer_id;
+  const id = ctx.request.query.id;  
+
+  // See https://shopify.dev/apps/store/security/iframe-protection
+  setContentSecurityPolicy(ctx, shop);
+  await ctx.render('index', {});
+
+});
+
 
 /* --- App proxies sample endpoint --- */
 // See https://shopify.dev/apps/online-store/app-proxies
