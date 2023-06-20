@@ -70,16 +70,12 @@ Or
 
 `you can install to your development stores from the app settings in partner dashboard.`
 
-# Trouble shooting
-
-- If you see the error page with the message like `"YOUR_APP_NAME is expired, this is an old app which no logner works after..."` during top page rendering in Shopify admin, check and fix the following major issues.
-  - Do not use redirection to the old admin URL of "https://XXX.myshopify.com/admin". Use the new one of "https://admin.shopify.com/store/XXX", instead. Refer to the [migration document](https://shopify.dev/apps/tools/app-bridge/updating-overview#ensure-compatibility-with-the-new-shopify-admin-domain).
-  - Your server needs to render the top page at acceptable speed in the right way. Too slow access, error HTTP codes, or server shutdown causes the error above in live stores (not in development ones). Some cloud plarform like Render, Heroku, etc do the very slow response for the first time in a while with free plans, so you need to swtich to ngrok hosting or pay those services for higher performence. 
 
 # TIPS
 
 - You can use the endpoint of `webhookgdpr` for [GDPR Webhooks](https://shopify.dev/docs/apps/store/security/gdpr-webhooks).
-- If you fail to get [protected customer data](https://shopify.dev/docs/apps/store/data-protection/protected-customer-data) in Checkout UI Extension or API Webhook creation even in dev. stores, submit your app first which enable you get them. 
+- If you fail to get [protected customer data](https://shopify.dev/docs/apps/store/data-protection/protected-customer-data) in [subscriptionContract query](https://shopify.dev/docs/api/admin-graphql/unstable/queries/subscriptionContract), apply the customer data request from your app settings in partner dashboard and submit your app first (the submission can be in-review, doesn't have to be completed for dev. store testing) which enable you get them. 
+
 
 # Disclaimer
 

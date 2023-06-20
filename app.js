@@ -330,8 +330,8 @@ router.get('/subscriptions', async (ctx, next) => {
     };
 
     const shop = getShopFromAuthToken(token);
-    const customer_id = ctx.request.query.customer_id;
     const id = ctx.request.query.id;
+    const billing = typeof ctx.request.query.billing !== UNDEFINED ? true : false;
 
     let shop_data = null;
     try {
@@ -347,63 +347,139 @@ router.get('/subscriptions', async (ctx, next) => {
       return;
     }
 
-    let api_res = null;
-    try {
-      api_res = await (callGraphql(ctx, shop, `{
-        subscriptionContract(id: "gid://shopify/SubscriptionContract/${id}"){
-          id
-          billingPolicy {
+    // Get the subscription contract of the given id.
+    // See https://shopify.dev/docs/api/admin-graphql/unstable/objects/SubscriptionContract
+    let ql = `{
+      subscriptionContract(id: "gid://shopify/SubscriptionContract/${id}"){
+        id
+        billingPolicy {
+          interval
+          intervalCount
+          maxCycles
+          minCycles
+        }
+        customer {
+            id
+            email
+            firstName
+            lastName
+        }
+        customerPaymentMethod {
+            id
+            instrument {
+              ... on CustomerCreditCard {
+                brand
+                maskedNumber
+                name
+                source
+              }
+            }
+        }
+        deliveryMethod {
+          ... on SubscriptionDeliveryMethodShipping {
+            address {
+              address1
+              address2
+              city
+              company
+              country
+              countryCode
+              firstName
+              lastName
+              name
+              phone
+              province
+              provinceCode
+              zip
+            }
+          }
+        }
+        deliveryPolicy {
             interval
             intervalCount
-            maxCycles
-            minCycles
-          }
-          customer {
-              id
-              email
-          }
-          customerPaymentMethod {
-              id
-              instrument {
-                ... on CustomerCreditCard {
-                  brand
-                  maskedNumber
-                  name
-                  source
-                }
-              }
-          }
-          deliveryPolicy {
-              interval
-              intervalCount
-          }
-          lastPaymentStatus
-          nextBillingDate
-          status
-          billingAttempts(first: 10) {
-            edges {
-              node {
-                id
-                nextActionUrl
-                createdAt
-                errorCode
-                errorMessage
-              }
+            anchors {
+              cutoffDay
+              day
+              month
+              type
             }
-          }
-          orders(first: 10) {
-            edges {
-              node {
-                id
-                name
-              }
-            }
-          }                
         }
+        lastPaymentStatus
+        nextBillingDate
+        status
+        billingAttempts(first: 10) {
+          edges {
+            node {
+              id
+              nextActionUrl
+              createdAt
+              errorCode
+              errorMessage
+              idempotencyKey
+              ready
+            }
+          }
+        }
+        orders(first: 10) {
+          edges {
+            node {
+              id
+              name
+            }
+          }
+        } 
+        lines(first: 10) {
+          edges {
+            node {
+              id
+              title
+              variantTitle
+            }
+          }
+        }                
       }
-      `, null, GRAPHQL_PATH_ADMIN, null));
+    }
+    `;
+    // Make a billing attempt to create an order with the given contract above.
+    // See https://shopify.dev/docs/api/admin-graphql/unstable/mutations/subscriptionBillingAttemptCreate
+    if (billing) {
+      ql = `mutation {
+        subscriptionBillingAttemptCreate(
+          subscriptionContractId: "gid://shopify/SubscriptionContract/${id}"
+          subscriptionBillingAttemptInput: {
+            idempotencyKey: "mysub${new Date().getTime()}${(Math.random() * 10 ^ 16) % 16}"
+            originTime: "${new Date().toISOString()}"
+          }
+        )
+        {
+          subscriptionBillingAttempt {
+            id
+            originTime
+            errorCode
+            errorMessage
+            idempotencyKey
+            nextActionUrl
+            order {
+              id
+            }
+            ready
+            subscriptionContract {
+              id
+            }
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }`;
+    }
+    let api_res = null;
+    try {
+      api_res = await (callGraphql(ctx, shop, ql, null, GRAPHQL_PATH_ADMIN, null));
     } catch (e) {
       console.log(`${JSON.stringify(e)}`);
+      ctx.body.result.message = JSON.stringify(e);
     }
 
     ctx.body.result.response = api_res;
