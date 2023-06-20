@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   render,
   extend,
@@ -46,25 +46,55 @@ function App() {
   const { getSessionToken } = useSessionToken();
   const { close, done } = useContainer();
 
+  console.log(`data: ${JSON.stringify(data)}`);
+
+  const [res, setRes] = useState({});
+
+  if (extensionPoint.indexOf('Edit') != -1) {
+    useEffect(() => {
+      getSessionToken().then((token) => {
+        const url = `${APP_URL}/plans?token=${token}&group_id=${data.sellingPlanGroupId}`;
+        console.log(`Accessing... ${url}`);
+        fetch(url, {
+          method: "POST"
+        }).then(res => {
+          res.json().then(json => {
+            console.log(`json: ${JSON.stringify(json)}`);
+            setRes(json);
+          }).catch(e => {
+            console.log(`${e}`);
+          });
+        }).catch(e => {
+          console.log(`error: ${e}`);
+        });
+      });
+    }, []);
+  }
+
   return (
     <BlockStack>
       <TextBlock>Welcome to the {extensionPoint} extension!</TextBlock>
       <TextBlock>For selling plan Add / Edit / Remove, refer to <Link external="true" url="https://shopify.dev/docs/apps/selling-strategies/subscriptions/selling-plans/manage">
         Shopify dev. site tutorials</Link> to integrate them.</TextBlock>
-      <Card title="Your selected data" sectioned="true">
-        <InlineStack spacing="loose">
-          <Text appearance="subdued" strong>Product:</Text><Text appearance="code">{data.productId}</Text>
-        </InlineStack>
-        <InlineStack spacing="loose">
-          <Text appearance="subdued" emphasized>Variant:</Text><Text appearance="code">{data.variantId}</Text>
-        </InlineStack>
-        <InlineStack spacing="loose">
-          <Text appearance="subdued" strong>Selling Plan Group:</Text><Text appearance="code">{data.sellingPlanGroupId}</Text>
-        </InlineStack>
-        <InlineStack spacing="loose">
-          <Text appearance="subdued" emphasized>Variants:</Text><Text appearance="code">{data.variantIds}</Text>
-        </InlineStack>
-      </Card>
+      <TextBlock>This page is buit with <Link external="true" url="https://shopify.dev/docs/api/admin-extensions/components">
+        Components for Admin UI Extensions</Link>.</TextBlock>
+      <TextBlock variation="strong">Your selected data</TextBlock>
+      <InlineStack spacing="loose">
+        <Text appearance="subdued" strong>Product:</Text><Text appearance="code">{data.productId}</Text>
+      </InlineStack>
+      <InlineStack spacing="loose">
+        <Text appearance="subdued" emphasized>Variant:</Text><Text appearance="code">{data.variantId}</Text>
+      </InlineStack>
+      <InlineStack spacing="loose">
+        <Text appearance="subdued" strong>Selling Plan Group:</Text><Text appearance="code">{data.sellingPlanGroupId}</Text>
+      </InlineStack>
+      <InlineStack spacing="loose">
+        <Text appearance="subdued" emphasized>Variants:</Text><Text appearance="code">{data.variantIds}</Text>
+      </InlineStack>
+      <TextBlock variation="strong">Your selected data details</TextBlock>
+      <InlineStack spacing="loose">
+        <TextBlock>{JSON.stringify(res, null, 4)}</TextBlock>
+      </InlineStack>
     </BlockStack>
   );
 }
@@ -77,6 +107,8 @@ function Create() {
   const data = useData();
   const { getSessionToken } = useSessionToken();
   const { close, done } = useContainer();
+
+  console.log(`data: ${JSON.stringify(data)}`);
 
   const [title, setTitle] = useState('');
   const titleChange = useCallback((newTitle) => setTitle(newTitle), []);
@@ -122,7 +154,7 @@ function Create() {
           <Button title="Cancel" onPress={() => { close(); }}></Button>
           <Button kind="primary" title="Create a plan" onPress={() => {
             getSessionToken().then((token) => {
-              const url = `${APP_URL}/create?token=${token}&product_id=${data.productId}&variant_id=${typeof data.variantId === 'undefined' ? '' : data.variantId}&title=${title}&days=${days}`;
+              const url = `${APP_URL}/plans?token=${token}&event=create&product_id=${data.productId}&variant_id=${typeof data.variantId === 'undefined' ? '' : data.variantId}&title=${title}&days=${days}`;
               console.log(`Accessing... ${url}`);
               fetch(url, {
                 method: "POST"

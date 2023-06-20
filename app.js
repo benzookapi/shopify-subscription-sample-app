@@ -184,7 +184,7 @@ router.get('/callback', async (ctx, next) => {
 
 });
 
-/* --- Plan creation CORS endpoint --- */
+/* --- Plan create / update CORS endpoint --- */
 // Sandbox Web Workers used by Admin UI Extensions requires CORS access.
 /* Accessed like this from Web Workers.
 fetch(`https://fb34-2400-2410-2fc0-fb00-d4e2-f57f-90a6-bdd6.jp.ngrok.io/create?your_key=your_value&token=YOUR_SESSION_TOKEN`, {
@@ -199,8 +199,8 @@ fetch(`https://fb34-2400-2410-2fc0-fb00-d4e2-f57f-90a6-bdd6.jp.ngrok.io/create?y
       console.log(`error: ${e}`);
     });
 */
-router.post('/create', async (ctx, next) => {
-  console.log("------------ create ------------");
+router.post('/plans', async (ctx, next) => {
+  console.log("------------ plans ------------");
   console.log(`request ${JSON.stringify(ctx.request, null, 4)}`);
   console.log(`query ${JSON.stringify(ctx.request.query, null, 4)}`);
   console.log(`body ${JSON.stringify(ctx.request.body, null, 4)}`);
@@ -221,79 +221,135 @@ router.post('/create', async (ctx, next) => {
 
   const shop = getShopFromAuthToken(ctx.request.query.token);
 
+  const event = typeof ctx.request.query.event === UNDEFINED ? '' : ctx.request.query.event;
+
   const product_id = ctx.request.query.product_id;
   const variant_id = ctx.request.query.variant_id;
+  const group_id = ctx.request.query.group_id;
+  const variants = ctx.request.query.variants;
+
   const title = ctx.request.query.title;
   const days = parseInt(ctx.request.query.days);
 
   // See https://shopify.dev/docs/apps/selling-strategies/subscriptions/selling-plans/manage
-  let response_data = {};
-  try {
-    const api_res = await (callGraphql(ctx, shop, `mutation sellingPlanGroupCreate($input: SellingPlanGroupInput!, $resources: SellingPlanGroupResourceInput!) {
-      sellingPlanGroupCreate(input: $input, resources: $resources) {
-        sellingPlanGroup {
-          id
-          name
+  let ql = ``;
+  let variables = null;
+  switch (event) {
+    case 'add':
+      // TBD
+      break;
+    case 'create':
+      // Create a selling plan group to save the merchant's generated selling plans.
+      // See https://shopify.dev/docs/api/admin-graphql/unstable/mutations/sellingPlanGroupCreate
+      ql = `mutation sellingPlanGroupCreate($input: SellingPlanGroupInput!, $resources: SellingPlanGroupResourceInput!) {
+          sellingPlanGroupCreate(input: $input, resources: $resources) {
+            sellingPlanGroup {
+              id
+              name
+            }
+            userErrors {
+              field
+              message
+            }
+            }
+        }`;
+      variables = {
+        "input": {
+          "merchantCode": "my-subscription",
+          "name": "My Subscription",
+          "options": [
+            "My Daily Option 1"
+          ],
+          "position": 1,
+          "sellingPlansToCreate": [
+            {
+              "name": title,
+              "options": "1 Day(s)",
+              "position": 1,
+              "category": "SUBSCRIPTION",
+              "billingPolicy": {
+                "recurring": {
+                  "interval": "DAY",
+                  "intervalCount": days
+                }
+              },
+              "deliveryPolicy": {
+                "recurring": {
+                  "interval": "DAY",
+                  "intervalCount": days,
+                  "preAnchorBehavior": "ASAP",
+                  "cutoff": 0,
+                  "intent": "FULFILLMENT_BEGIN"
+                }
+              },
+              "pricingPolicies": [
+              ]
+            }
+          ],
+          "sellingPlansToDelete": [
+          ],
+          "sellingPlansToUpdate": [
+          ]
+        },
+        "resources": {
+          "productIds": [
+            product_id
+          ],
+          "productVariantIds": (variant_id === '' ? [] : [variant_id])
         }
-        userErrors {
-          field
-          message
-        }
-      }
-    }
-    `, null, GRAPHQL_PATH_ADMIN, {
-      "input": {
-        "merchantCode": "my-subscription",
-        "name": "My Subscription",
-        "options": [
-          "My Daily Option 1"
-        ],
-        "position": 1,
-        "sellingPlansToCreate": [
-          {
-            "name": title,
-            "options": "1 Day(s)",
-            "position": 1,
-            "category": "SUBSCRIPTION",
-            "billingPolicy": {
-              "recurring": {
-                "interval": "DAY",
-                "intervalCount": days,
-                "anchors": {
-                  "type": "WEEKDAY",
-                  "day": 1
+      };
+      break;
+    case 'remove':
+      //TBD
+      break;
+    case 'edit':
+      //TBD
+      break;
+    default:
+      // By default, show the current plan.
+      // See https://shopify.dev/docs/api/admin-graphql/unstable/queries/sellingPlanGroup
+      ql = `{
+          sellingPlanGroup(id: "${group_id}") {
+            appId
+            id
+            name
+            sellingPlans(first: 10) {
+              edges {
+                node {
+                  id
+                  name
+                  billingPolicy {
+                    ... on SellingPlanRecurringBillingPolicy {
+                      interval
+                      intervalCount
+                      anchors {
+                        cutoffDay
+                        day
+                        month
+                        type
+                      }
+                    }
+                  }
+                  deliveryPolicy {
+                    ... on SellingPlanRecurringDeliveryPolicy {
+                      anchors {
+                        cutoffDay
+                        day
+                        month
+                        type
+                      }
+                    }
+                  }
                 }
               }
-            },
-            "deliveryPolicy": {
-              "recurring": {
-                "interval": "DAY",
-                "intervalCount": days,
-                "anchors": {
-                  "type": "WEEKDAY",
-                  "day": 1
-                },
-                "preAnchorBehavior": "ASAP",
-                "cutoff": 0,
-                "intent": "FULFILLMENT_BEGIN"
-              }
-            },
-            "pricingPolicies": [
-            ]
+            }
+
           }
-        ],
-        "sellingPlansToDelete": [
-        ],
-        "sellingPlansToUpdate": [
-        ]
-      },
-      "resources": {
-        "productIds": [
-          product_id
-        ],
-        "productVariantIds": (variant_id === '' ? [] : [variant_id])
-      }
-    }));
+        }`;
+  }
+  let response_data = {};
+  try {
+    const api_res = await (callGraphql(ctx, shop, ql, null, GRAPHQL_PATH_ADMIN, variables));
     response_data = api_res.data;
   } catch (e) {
     console.log(`${JSON.stringify(e)}`);
@@ -499,7 +555,7 @@ router.get('/subscriptions', async (ctx, next) => {
 });
 
 
-/* --- App proxies sample endpoint --- */
+/* --- App proxies endpoint for subscription customer portal --- */
 // See https://shopify.dev/apps/online-store/app-proxies
 // Note that ngrok blocks the proxy by default, you have to use other platforms like Render, Fly.io, etc.
 router.get('/appproxy', async (ctx, next) => {
@@ -515,7 +571,7 @@ router.get('/appproxy', async (ctx, next) => {
   //const customerId = ctx.request.query.logged_in_customer_id;
 
   // App Proxies are supposed to be public within theme or other public sforefronts, so its external endpoint like 
-  // `https://${shop}.myshopify.dom/apps/bareboneproxy` has no validation or authentication where you shouldn't return private data.
+  // `https://${shop}.myshopify.dom/apps/mysubcustomer` has no validation or authentication where you shouldn't return private data.
   const res = {
     "message": "CAUTION! DO NOT RETURN PRIVATE DATA OVER APP PROXY, THIS IS FULLY PUBLIC.",
     "query": ctx.request.query
