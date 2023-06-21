@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAppBridge } from '@shopify/app-bridge-react';
 import { authenticatedFetch } from "@shopify/app-bridge-utils";
 import { Redirect } from '@shopify/app-bridge/actions';
 import { getSessionToken } from "@shopify/app-bridge-utils";
-import { Page, Card, Layout, Stack, Link, Badge, Text, Spinner, Banner, Button, VerticalStack } from '@shopify/polaris';
+import { Page, Card, Layout, Stack, Link, Badge, Text, Spinner, Banner, Button, VerticalStack, Checkbox } from '@shopify/polaris';
 import { CircleRightMajor } from '@shopify/polaris-icons';
 
 import { _getParamValueFromQuery } from "../utils/my_util";
@@ -18,9 +18,12 @@ function Subscriptions() {
     const [res, setRes] = useState({});
     const [resBilling, setResBilling] = useState({ "message": "", "response": {} });
 
+    const [fulfill, setFulfill] = useState(false);
+    const fulfillChange = useCallback((newFulfill) => setFulfill(newFulfill), []);
+
     const getDetails = () => {
+        setRes({});
         authenticatedFetch(app)(`/subscriptions?&id=${id}`).then((response) => {
-            setRes({});
             response.json().then((json) => {
                 console.log(JSON.stringify(json, null, 4));
                 setRes(json.result);
@@ -50,7 +53,7 @@ function Subscriptions() {
                     </Card>
                 </Layout.Section>
                 <Layout.Section>
-                    <Text as='h2'>Create the next order with a billing attempt</Text>
+                    <Text as='h2' fontWeight="bold">Create the next order with a billing attempt</Text>
                 </Layout.Section>
                 <Layout.Section>
                     <Card>
@@ -58,10 +61,17 @@ function Subscriptions() {
                             <div>&nbsp;</div>
                             <div>
                                 <span>&nbsp;</span>
+                                <Checkbox
+                                    label="Fulfill automatically by API (with dummy tracking number and carrier)"
+                                    checked={fulfill}
+                                    onChange={fulfillChange} />
+                            </div>
+                            <div>
+                                <span>&nbsp;</span>
                                 <Button primary onClick={() => {
+                                    setResBilling({});
                                     // See https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/create#example-call
-                                    authenticatedFetch(app)(`/subscriptions?billing=true&id=${id}`).then((response) => {
-                                        setResBilling({});
+                                    authenticatedFetch(app)(`/subscriptions?billing=true&id=${id}&fulfill=${fulfill}`).then((response) => {
                                         response.json().then((json) => {
                                             console.log(JSON.stringify(json, null, 4));
                                             setResBilling(json.result);

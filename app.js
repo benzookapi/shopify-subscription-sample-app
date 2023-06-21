@@ -366,6 +366,7 @@ router.post('/plans', async (ctx, next) => {
 // See https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/update
 router.get('/subscriptions', async (ctx, next) => {
   console.log("+++++++++++++++ /subscriptions +++++++++++++++");
+  console.log(`query ${JSON.stringify(ctx.request.query, null, 4)}`);
 
   // Access by AppBride::authenticatedFetch
   if (typeof ctx.request.header.authorization !== UNDEFINED) {
@@ -388,6 +389,7 @@ router.get('/subscriptions', async (ctx, next) => {
     const shop = getShopFromAuthToken(token);
     const id = ctx.request.query.id;
     const billing = typeof ctx.request.query.billing !== UNDEFINED ? true : false;
+    const fulfill = typeof ctx.request.query.fulfill !== UNDEFINED ? true : false;
 
     let shop_data = null;
     try {
@@ -521,6 +523,31 @@ router.get('/subscriptions', async (ctx, next) => {
             ready
             subscriptionContract {
               id
+              orders(first: 1, reverse: true) {
+                edges {
+                  node {
+                    id
+                    name
+                    physicalLocation {
+                      id
+                    }
+                    fulfillable
+                    fulfillments (first: 1) {
+                      id
+                      location {
+                        id
+                      }
+                    }
+                    fulfillmentOrders(first: 1, reverse: true) {
+                      edges {
+                        node {
+                          id
+                        }
+                      }
+                    }
+                  }
+                }
+              } 
             }
           }
           userErrors {
@@ -533,6 +560,37 @@ router.get('/subscriptions', async (ctx, next) => {
     let api_res = null;
     try {
       api_res = await (callGraphql(ctx, shop, ql, null, GRAPHQL_PATH_ADMIN, null));
+      // Ship automatically if checked.
+      if (fulfill) {
+        const fulfill_order_id = api_res.data.subscriptionBillingAttemptCreate.subscriptionBillingAttempt.subscriptionContract.orders.
+          edges[0].node.fulfillmentOrders.edges[0].node.id;
+        const api_res2 = await (callGraphql(ctx, shop, `mutation fulfillmentCreateV2($fulfillment: FulfillmentV2Input!) {
+          fulfillmentCreateV2(fulfillment: $fulfillment) {
+            fulfillment {
+              id
+              name
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }`, null, GRAPHQL_PATH_ADMIN, {
+          "fulfillment": {
+            "lineItemsByFulfillmentOrder": [
+              {
+                "fulfillmentOrderId": fulfill_order_id
+              }
+            ],
+            "trackingInfo": {
+              "company": "Dummy shipping carrier",
+              "number": "9999999",
+              "url": "https://example.com"
+            }
+          }
+        }));
+        ctx.body.result.response2 = api_res2;
+      }
     } catch (e) {
       console.log(`${JSON.stringify(e)}`);
       ctx.body.result.message = JSON.stringify(e);
