@@ -37,7 +37,8 @@ extend(
 
 // *NOTE THAT The raw app url as the backend is not configurable unlike other extensions
 //const APP_URL = `YOUR_APP_URL_IN_APP_SETTINGS (https://xxxxxxx without the last slash '/')`;
-const APP_URL = `https://bef2-2400-2410-2fc0-fb00-31fd-5cf1-c6e6-1d1b.ngrok-free.app`;
+//const APP_URL = `https://bef2-2400-2410-2fc0-fb00-31fd-5cf1-c6e6-1d1b.ngrok-free.app`;
+const APP_URL = `https://shopify-subscription-sample-app.onrender.com`;
 
 // See https://shopify.dev/docs/apps/selling-strategies/purchase-options/app-extensions/extension-points#product-details-page
 function App() {
