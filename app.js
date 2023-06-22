@@ -465,7 +465,7 @@ router.get('/subscriptions', async (ctx, next) => {
         lastPaymentStatus
         nextBillingDate
         status
-        billingAttempts(first: 10) {
+        billingAttempts(first: 20) {
           edges {
             node {
               id
@@ -478,7 +478,7 @@ router.get('/subscriptions', async (ctx, next) => {
             }
           }
         }
-        orders(first: 10) {
+        orders(first: 20) {
           edges {
             node {
               id
@@ -523,7 +523,7 @@ router.get('/subscriptions', async (ctx, next) => {
             ready
             subscriptionContract {
               id
-              orders(first: 1, reverse: true) {
+              orders(first: 100, reverse: true) {
                 edges {
                   node {
                     id
