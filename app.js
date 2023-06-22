@@ -388,8 +388,8 @@ router.get('/subscriptions', async (ctx, next) => {
 
     const shop = getShopFromAuthToken(token);
     const id = ctx.request.query.id;
-    const billing = typeof ctx.request.query.billing !== UNDEFINED ? true : false;
-    const fulfill = typeof ctx.request.query.fulfill !== UNDEFINED ? true : false;
+    const billing = typeof ctx.request.query.billing !== UNDEFINED && ctx.request.query.billing === 'true' ? true : false;
+    const fulfill = typeof ctx.request.query.fulfill !== UNDEFINED && ctx.request.query.fulfill === 'true' ? true : false;
 
     let shop_data = null;
     try {
