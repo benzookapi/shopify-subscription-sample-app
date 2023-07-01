@@ -407,7 +407,7 @@ router.get('/subscriptions', async (ctx, next) => {
 
     // Get the subscription contract of the given id.
     // See https://shopify.dev/docs/api/admin-graphql/unstable/objects/SubscriptionContract
-    let ql = `{
+    const contract_ql = `{
       subscriptionContract(id: "gid://shopify/SubscriptionContract/${id}"){
         id
         billingPolicy {
@@ -465,7 +465,7 @@ router.get('/subscriptions', async (ctx, next) => {
         lastPaymentStatus
         nextBillingDate
         status
-        billingAttempts(first: 20) {
+        billingAttempts(first: 3, reverse: true) {
           edges {
             node {
               id
@@ -478,15 +478,26 @@ router.get('/subscriptions', async (ctx, next) => {
             }
           }
         }
-        orders(first: 20) {
+        orders(first: 3, reverse: true) {
           edges {
             node {
               id
               name
+              createdAt
+              fulfillmentOrders(first: 3, reverse: true) {
+                edges {
+                  node {
+                    id
+                    createdAt
+                    status
+                    requestStatus
+                  }
+                }
+              }
             }
           }
         } 
-        lines(first: 10) {
+        lines(first: 3, reverse: true) {
           edges {
             node {
               id
@@ -498,6 +509,7 @@ router.get('/subscriptions', async (ctx, next) => {
       }
     }
     `;
+    let ql = contract_ql;
     // Make a billing attempt to create an order with the given contract above.
     // See https://shopify.dev/docs/api/admin-graphql/unstable/mutations/subscriptionBillingAttemptCreate
     if (billing) {
@@ -523,25 +535,29 @@ router.get('/subscriptions', async (ctx, next) => {
             ready
             subscriptionContract {
               id
-              orders(first: 100, reverse: true) {
+              orders(first: 3, reverse: true) {
                 edges {
                   node {
                     id
                     name
+                    createdAt
                     physicalLocation {
                       id
                     }
                     fulfillable
-                    fulfillments (first: 1) {
+                    fulfillments (first: 3) {
                       id
                       location {
                         id
                       }
                     }
-                    fulfillmentOrders(first: 1, reverse: true) {
+                    fulfillmentOrders(first: 3, reverse: true) {
                       edges {
                         node {
                           id
+                          createdAt
+                          status
+                          requestStatus
                         }
                       }
                     }
@@ -562,13 +578,25 @@ router.get('/subscriptions', async (ctx, next) => {
       api_res = await (callGraphql(ctx, shop, ql, null, GRAPHQL_PATH_ADMIN, null));
       // Ship automatically if checked.
       if (fulfill) {
-        const fulfill_order_id = api_res.data.subscriptionBillingAttemptCreate.subscriptionBillingAttempt.subscriptionContract.orders.
-          edges[0].node.fulfillmentOrders.edges[0].node.id;
+        // Get the latest fullfillment order id with the same query above (the billing attempt mutation response has the old ones only...).
+        const api_res1 = await (callGraphql(ctx, shop, contract_ql, null, GRAPHQL_PATH_ADMIN, null));
+        const fulfill_order_id = api_res1.data.subscriptionContract.orders.edges[0].node.fulfillmentOrders.edges[0].node.id;
+        // Create a fullfilment of the given  fullfillment order id for automatic shipping.
         const api_res2 = await (callGraphql(ctx, shop, `mutation fulfillmentCreateV2($fulfillment: FulfillmentV2Input!) {
           fulfillmentCreateV2(fulfillment: $fulfillment) {
             fulfillment {
               id
               name
+              fulfillmentOrders(first: 3, reverse: true) {
+                edges {
+                  node {
+                    id
+                    createdAt
+                    status
+                    requestStatus
+                  }
+                }
+              }
             }
             userErrors {
               field
