@@ -55,8 +55,7 @@ function Subscriptions() {
                 <Layout.Section>
                     <Text variant="heading2xl" as="h3">Create the next order with a billing attempt</Text>
                     <Text>
-                        For more advanced fullfilment management, refer to 
-                        <Link url="https://shopify.dev/docs/apps/selling-strategies/subscriptions/fulfillments" external={true}>Dev. doc</Link>
+                        For more advanced fullfilment management, refer to <Link url="https://shopify.dev/docs/apps/selling-strategies/subscriptions/fulfillments" external={true}>Dev. doc</Link>
                     </Text>
                 </Layout.Section>
                 <Layout.Section>
