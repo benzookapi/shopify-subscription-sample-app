@@ -21,6 +21,9 @@ function Subscriptions() {
     const [fulfill, setFulfill] = useState(false);
     const fulfillChange = useCallback((newFulfill) => setFulfill(newFulfill), []);
 
+    const [rawURL, setRawUrl] = useState('');
+    const [authHeader, setAuthHeader] = useState('');
+
     const getDetails = () => {
         setRes({});
         authenticatedFetch(app)(`/subscriptions?&id=${id}`).then((response) => {
@@ -79,6 +82,10 @@ function Subscriptions() {
                                             console.log(JSON.stringify(json, null, 4));
                                             setResBilling(json.result);
                                             getDetails();
+                                            setRawUrl(`GET: https://${window.location.hostname}/subscriptions?billing=true&id=${id}&fulfill=${fulfill}`);
+                                            getSessionToken(app).then((sessionToken) => {
+                                                setAuthHeader(`with the HTTP header, authorization: Bearer ${sessionToken}`);
+                                            });
                                         }).catch((e) => {
                                             console.log(`${e}`);
                                         });
@@ -96,6 +103,10 @@ function Subscriptions() {
                                     status="info"
                                 >
                                     <p>Billing attempt execution need to follow the definitions of contract and plan above.</p>
+                                    <p>&nbsp;</p>
+                                    <p>The URL to make orders recurrisviely for this cotract is:</p>
+                                    <p>{rawURL}</p>
+                                    <p>{authHeader}</p>
                                 </Banner>
                             </div>
                             <div>&nbsp;</div>
