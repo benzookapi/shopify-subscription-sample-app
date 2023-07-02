@@ -40,7 +40,7 @@
 
         <script>
             const sendEmail = function () {
-                fetch(`apps/mysubpage?event=email&token=<%= token %>`, {
+                fetch(`mysubpage?event=email&token=<%= token %>`, {
                     method: "GET"
                 }).then((res) => {
                     res.json().then((data, errors) => {
