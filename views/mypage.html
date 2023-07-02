@@ -18,16 +18,16 @@
                 <h1 class="Polaris-Text--root Polaris-Text--heading4xl">Your subscription data</h1>
             </div>
             <div style="float: left; margin-left: 2em;">
-                <button class="Polaris-Button Polaris-Button--primary" type="button">
+                <button class="Polaris-Button Polaris-Button--primary" type="button" onclick="sendEmail();">
                     <span class="Polaris-Button__Content">
                         <span class="Polaris-Button__Text">Change my payment method</span>
                     </span>
                 </button>
             </div>
             <div style="float: left; margin-left: 2em;">
-                <span class="Polaris-Badge Polaris-Badge--statusInfo">
+                <span class="Polaris-Badge Polaris-Badge--statusInfo" style="display: none;">
                     <span class="Polaris-Text--root Polaris-Text--visuallyHidden">Info</span>
-                    <span class="Polaris-Text--root Polaris-Text--bodySm">Draft</span>
+                    <span class="Polaris-Text--root Polaris-Text--bodySm" id="result"></span>
                 </span>
             </div>
         </div>
@@ -37,6 +37,29 @@
 <%= JSON.stringify(json, null, 4) %>
         </pre>
         </div>
+
+        <script>
+            const sendEmail = function () {
+                fetch(`apps/mysubpage?event=email&token=<%= token %>`, {
+                    method: "GET"
+                }).then((res) => {
+                    res.json().then((data, errors) => {
+                        if (typeof errors !== 'undefined') {
+                            console.log(`Sending email errors: ${JSON.stringify(errors)}`);
+                            return;
+                        }
+                        console.log(`data: ${JSON.stringify(data)}`);
+                        let html = '';
+                        if (typeof data.Success === 'undefined') {
+                            html = 'Senind an mail was Failed.';
+                        } else {
+                            html = `An email was sent to ${data.Success}`;
+                        }
+                        window.document.getElementById('result').innerHTML = html;
+                    });
+                });
+            };
+        </script>
 
     </body>
 

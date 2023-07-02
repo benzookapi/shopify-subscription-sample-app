@@ -720,6 +720,7 @@ router.get('/appproxy', async (ctx, next) => {
                 title
               }
               customerPaymentMethod {
+                id
                 instrument {
                   ... on CustomerCreditCard {
                     brand
@@ -780,8 +781,40 @@ router.get('/appproxy', async (ctx, next) => {
     }`, null, GRAPHQL_PATH_ADMIN, null));
     return await ctx.render('mypage', {
       app_url: `https://${ctx.request.host}`,
-      json: api_res.data
+      json: api_res.data,
+      token: createJWT({
+        "payment_method_id": api_res.data.customer.subscriptionContracts.edges.length > 0 ? api_res.data.customer.subscriptionContracts.edges[0].node.customerPaymentMethod.id : ''
+      })
     });
+  }
+  if (event === 'email') {
+    const payment_method_id = decoded_token.payment_method_id;
+    if (payment_method_id === '') {
+      ctx.body = { "Error": "No payment_method_id passed." };
+      ctx.status = 400;
+      return;
+    }
+    const api_res = await (callGraphql(ctx, shop, `mutation {
+      customerPaymentMethodSendUpdateEmail(customerPaymentMethodId: "${payment_method_id}") {
+        customer {
+          id
+          email
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+     }
+     `, null, GRAPHQL_PATH_ADMIN, null));
+    if (api_res.data.customerPaymentMethodSendUpdateEmail.userErrors.length > 0) {
+      ctx.body = { "Error": `${JSON.stringify(api_res.data.customerPaymentMethodSendUpdateEmail.userErrors)}` };
+      ctx.status = 500;
+      return;
+    } else {
+      ctx.body = { "Success": `${api_res.data.customerPaymentMethodSendUpdateEmail.customer.email}` };
+      return;
+    }
   }
 
   ctx.body = { "Error": "No matched events" };
