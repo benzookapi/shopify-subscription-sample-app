@@ -5,12 +5,19 @@ const mysub_send = function (shop_url) {
     }).then((res) => {
         res.json().then((data, errors) => {
             if (typeof errors !== 'undefined') {
-                console.log(`Sending my subscription portal errors: ${JSON.stringify(errors, null, 4)}`);
+                console.log(`Sending my subscription portal errors: ${JSON.stringify(errors)}`);
                 return;
             }
-            window.document.getElementById('mysub_res').innerHTML = `<p>Access to your subscription page
-             through the following link (<b>note that this should be shared by real email sending for real usage!</b>)</p>
-             <p><a href="${data.link}" target="_blank">${data.link}</a></p>`;
+            console.log(`data: ${JSON.stringify(data)}`);
+            let html = '';
+            if (typeof data.link === 'undefined') {
+                html = 'No data found';
+            } else {
+                html = `<p>Access to your subscription page
+                through the following link (<b>note that this should be shared by real email sending for real usage!</b>)</p>
+                <p><a href="${data.link}" target="_blank">${data.link}</a></p>`;
+            }
+            window.document.getElementById('mysub_res').innerHTML = html;
         });
     });
 };

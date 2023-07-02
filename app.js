@@ -17,7 +17,7 @@ const mysql = require('mysql');
 const jwt_decode = require('jwt-decode'); // For client side JWT with no signature validation
 const jwt = require('jsonwebtoken'); // For server side JWT with app secret signature validation
 
-const { v4: uuidv4 } = require('uuid'); // For JWT sign
+//const { v4: uuidv4 } = require('uuid'); // For JWT sign
 
 const router = new Router();
 const app = module.exports = new Koa();
@@ -652,9 +652,113 @@ router.get('/appproxy', async (ctx, next) => {
     return;
   }
 
-  await ctx.render('mypage', {
-    app_url: `https://${ctx.request.host}`
-  });
+  let decoded_token = null;
+  if (typeof ctx.request.query.token !== UNDEFINED) {
+    // if a wrong token is passed with a ummatched signature, decodeJWT fails with an exeption = works as verification as well.
+    try {
+      decoded_token = decodeJWT(ctx.request.query.token);
+    } catch (e) {
+      console.log(`${e}`);
+    }
+    if (decoded_token == null) {
+      ctx.body = { "Error": "Wrong token passed." };
+      ctx.status = 400;
+      return;
+    }
+    console.log(`decoded_token ${JSON.stringify(decoded_token, null, 4)}`);
+  }
+
+  const shop = ctx.request.query.shop;
+
+  const event = typeof ctx.request.query.event == !UNDEFINED ? ctx.request.query.event : '';
+  if (event === 'send') {
+    const email = typeof ctx.request.query.email == !UNDEFINED ? ctx.request.query.email : '';
+    const api_res = await (callGraphql(ctx, shop, `{
+      customers(query: "email:'${email}'", first: 1) {
+        edges {
+          node {
+            id
+            email
+            firstName
+            lastName
+          }
+        }
+      }
+    }`, null, GRAPHQL_PATH_ADMIN, null));
+    const id = api_res.data.customers.edges.length > 0 ? api_res.data.customers.edges[0].node.id : '';
+    if (id === '') {
+      ctx.body = { "Error": "Wrong email passed." };
+      ctx.status = 404;
+      return;
+    }
+    const token = createJWT({
+      "id": id
+    });
+    ctx.body = {
+      "link": `https://${shop}/apps/mysubpage?event=show&token=${token}`
+    };
+    return;
+  }
+  if (event === 'show') {
+    if (decoded_token == null) {
+      ctx.body = { "Error": "No token passed." };
+      ctx.status = 400;
+      return;
+    }
+    const id = decoded_token.id;
+    const api_res = await (callGraphql(ctx, shop, `{
+      customer(id: "${id}") {
+        id
+        firstName
+        lastName
+        email
+        subscriptionContracts(first: 10, reverse: true) {
+          edges {
+            node {
+              id
+              orders(first: 3, reverse: true) {
+                edges {
+                  node {
+                    id
+                    name
+                    createdAt
+                    physicalLocation {
+                      id
+                    }
+                    fulfillable
+                    fulfillments(first: 3) {
+                      id
+                      location {
+                        id
+                      }
+                    }
+                    fulfillmentOrders(first: 3, reverse: true) {
+                      edges {
+                        node {
+                          id
+                          createdAt
+                          status
+                          requestStatus
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }`, null, GRAPHQL_PATH_ADMIN, null));
+    await ctx.render('mypage', {
+      app_url: `https://${ctx.request.host}`,
+      json: api_res
+    });
+
+  }
+
+  ctx.body = { "Error": "No matched events" };
+  ctx.status = 400;
 
 });
 
