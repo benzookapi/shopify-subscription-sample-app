@@ -59,7 +59,7 @@
                         console.log(`data: ${JSON.stringify(data)}`);
                         let html = '';
                         if (typeof data.Success === 'undefined') {
-                            html = 'Sending an mail was Failed.';
+                            html = `Sending an mail was Failed. <b>${data.Error}</b>`;
                         } else {
                             html = `An email was sent to <b>${data.Success}</b>`;
                         }
@@ -81,7 +81,7 @@
                         console.log(`data: ${JSON.stringify(data)}`);
                         let html = '';
                         if (typeof data.Success === 'undefined') {
-                            html = 'Updating payment was Failed.';
+                            html = `Updating payment was Failed. <b>${data.Error}</b>`;
                         } else {
                             html = `Click <b><a href="${data.Success}" target="_blank">this link</a></b> to update your payment method.`;
                         }

@@ -808,7 +808,6 @@ router.get('/appproxy', async (ctx, next) => {
      }`, null, GRAPHQL_PATH_ADMIN, null));
     if (api_res.data.customerPaymentMethodSendUpdateEmail.userErrors.length > 0) {
       ctx.body = { "Error": `${JSON.stringify(api_res.data.customerPaymentMethodSendUpdateEmail.userErrors)}` };
-      ctx.status = 500;
       return;
     } else {
       ctx.body = { "Success": `${api_res.data.customerPaymentMethodSendUpdateEmail.customer.email}` };
@@ -834,7 +833,6 @@ router.get('/appproxy', async (ctx, next) => {
      }`, null, GRAPHQL_PATH_ADMIN, null));
     if (api_res.data.customerPaymentMethodGetUpdateUrl.userErrors.length > 0) {
       ctx.body = { "Error": `${JSON.stringify(api_res.data.customerPaymentMethodGetUpdateUrl.userErrors)}` };
-      ctx.status = 500;
       return;
     } else {
       ctx.body = { "Success": `${api_res.data.customerPaymentMethodGetUpdateUrl.updatePaymentMethodUrl}` };
