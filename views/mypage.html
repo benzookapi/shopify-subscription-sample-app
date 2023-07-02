@@ -1,40 +1,43 @@
 <a!DOCTYPE html>
-<html>
+    <html>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>My subscription page</title>
-    <link rel="stylesheet" href="<%= app_url %>/mycss.css" />
-    <style>       
-    </style>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>My subscription page</title>
+        <link rel="stylesheet" href="<%= app_url %>/mycss.css" />
+        <style>
+        </style>
+    </head>
 
-<body>    
+    <body>
 
-    <div class="Polaris-Box" style="--pc-box-background:var(--p-color-bg-subdued);--pc-box-overflow-x:hidden;--pc-box-overflow-y:hidden;--pc-box-padding-block-end-xs:var(--p-space-4);--pc-box-padding-block-end-sm:var(--p-space-5);--pc-box-padding-block-start-xs:var(--p-space-4);--pc-box-padding-block-start-sm:var(--p-space-5);--pc-box-padding-inline-start-xs:var(--p-space-4);--pc-box-padding-inline-start-sm:var(--p-space-5);--pc-box-padding-inline-end-xs:var(--p-space-4);--pc-box-padding-inline-end-sm:var(--p-space-5);--pc-box-shadow:var(--p-shadow-md)">
-        <h1 class="Polaris-Text--root Polaris-Text--bodyMd">Your subscription data</h1>
-        
-            <button class="Polaris-Button Polaris-Button--primary" type="button">
-                <span class="Polaris-Button__Content">
-                  <span class="Polaris-Button__Text">Change my payment method</span>
+        <div class="Polaris-Box"
+            style="--pc-box-background:var(--p-color-bg-subdued);--pc-box-overflow-x:hidden;--pc-box-overflow-y:hidden;--pc-box-padding-block-end-xs:var(--p-space-4);--pc-box-padding-block-end-sm:var(--p-space-5);--pc-box-padding-block-start-xs:var(--p-space-4);--pc-box-padding-block-start-sm:var(--p-space-5);--pc-box-padding-inline-start-xs:var(--p-space-4);--pc-box-padding-inline-start-sm:var(--p-space-5);--pc-box-padding-inline-end-xs:var(--p-space-4);--pc-box-padding-inline-end-sm:var(--p-space-5);--pc-box-shadow:var(--p-shadow-md)">
+            <div>
+                <h1 class="Polaris-Text--root Polaris-Text--heading4xl">Your subscription data</h1>
+            </div>
+            <div style="float: left;">
+                <button class="Polaris-Button Polaris-Button--primary" type="button">
+                    <span class="Polaris-Button__Content">
+                        <span class="Polaris-Button__Text">Change my payment method</span>
+                    </span>
+                </button>
+            </div>
+            <div style="float: left;">
+                <span class="Polaris-Badge Polaris-Badge--statusInfo">
+                    <span class="Polaris-Text--root Polaris-Text--visuallyHidden">Info</span>
+                    <span class="Polaris-Text--root Polaris-Text--bodySm">Draft</span>
                 </span>
-              </button>
+            </div>
+        </div>
 
-              <span class="Polaris-Badge Polaris-Badge--statusInfo">
-                <span class="Polaris-Text--root Polaris-Text--visuallyHidden">Info</span>
-                <span class="Polaris-Text--root Polaris-Text--bodySm">Draft</span>
-              </span>
-        
-      </div>
-
-
-    <div>
-        <pre >
+        <div>
+            <pre>
 <%= JSON.stringify(json, null, 4) %>
         </pre>
-    </div>
+        </div>
 
-</body>
+    </body>
 
-</html>
+    </html>

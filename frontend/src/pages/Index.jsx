@@ -15,6 +15,15 @@ function Index() {
             <Card>
                 <Text>Index</Text>
             </Card>
+            <Card>
+                <Text>Index</Text>
+            </Card>
+            <Card>
+                <Text>Index</Text>
+            </Card>
+            <Card>
+                <Text>Index</Text>
+            </Card>
         </Page>
     );
 }
