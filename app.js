@@ -916,7 +916,7 @@ const setContentSecurityPolicy = function (ctx, shop) {
 
 /* --- Create JWT to pass data encoded through URL access (Checkout Extension Web Worker) --- */
 const createJWT = function (json) {
-  return jwt.sign(json, API_SECRET, { algorithm: 'HS256', expiresIn: '60s' });
+  return jwt.sign(json, API_SECRET, { algorithm: 'HS256', expiresIn: '3600s' });
 };
 
 /* --- Decode JWT passed through URL access (Checkout Extension Web Worker) --- */
