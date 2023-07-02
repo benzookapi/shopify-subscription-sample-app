@@ -6,26 +6,26 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>My subscription page</title>
     <link rel="stylesheet" href="<%= app_url %>/mycss.css" />
-    <style>
-        .mysub_center {
-            width: 100%;
-            text-align: center;
-        }
+    <style>       
     </style>
 </head>
 
-<body>
-
-    <div class="Polaris-Box" style="--pc-box-background:var(--p-color-bg-app-selected)">
-        <div style="background:var(--p-color-border-interactive-subdued);height:auto;width:auto;border-radius:inherit">
-          <div style="color:var(--p-color-text)">
-            <p class="Polaris-Text--root Polaris-Text--bodyMd">Content inside a box</p>
-          </div>
-        </div>
-      </div>
+<body>    
 
     <div class="Polaris-Box" style="--pc-box-background:var(--p-color-bg-subdued);--pc-box-overflow-x:hidden;--pc-box-overflow-y:hidden;--pc-box-padding-block-end-xs:var(--p-space-4);--pc-box-padding-block-end-sm:var(--p-space-5);--pc-box-padding-block-start-xs:var(--p-space-4);--pc-box-padding-block-start-sm:var(--p-space-5);--pc-box-padding-inline-start-xs:var(--p-space-4);--pc-box-padding-inline-start-sm:var(--p-space-5);--pc-box-padding-inline-end-xs:var(--p-space-4);--pc-box-padding-inline-end-sm:var(--p-space-5);--pc-box-shadow:var(--p-shadow-md)">
-        <h1 class="Polaris-Text--root Polaris-Text--bodyMd">Your customer data with subscriptions</h1>
+        <h1 class="Polaris-Text--root Polaris-Text--bodyMd">Your subscription data</h1>
+        
+            <button class="Polaris-Button Polaris-Button--primary" type="button">
+                <span class="Polaris-Button__Content">
+                  <span class="Polaris-Button__Text">Change my payment method</span>
+                </span>
+              </button>
+
+              <span class="Polaris-Badge Polaris-Badge--statusInfo">
+                <span class="Polaris-Text--root Polaris-Text--visuallyHidden">Info</span>
+                <span class="Polaris-Text--root Polaris-Text--bodySm">Draft</span>
+              </span>
+        
       </div>
 
 
@@ -34,6 +34,7 @@
 <%= JSON.stringify(json, null, 4) %>
         </pre>
     </div>
+
 </body>
 
 </html>

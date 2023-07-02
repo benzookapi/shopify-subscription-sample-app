@@ -780,7 +780,7 @@ router.get('/appproxy', async (ctx, next) => {
     }`, null, GRAPHQL_PATH_ADMIN, null));
     return await ctx.render('mypage', {
       app_url: `https://${ctx.request.host}`,
-      json: api_res
+      json: api_res.data
     });
   }
 
