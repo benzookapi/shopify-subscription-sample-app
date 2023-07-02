@@ -750,11 +750,10 @@ router.get('/appproxy', async (ctx, next) => {
         }
       }
     }`, null, GRAPHQL_PATH_ADMIN, null));
-    await ctx.render('mypage', {
+    return await ctx.render('mypage', {
       app_url: `https://${ctx.request.host}`,
       json: api_res
     });
-
   }
 
   ctx.body = { "Error": "No matched events" };

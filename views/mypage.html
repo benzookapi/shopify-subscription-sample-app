@@ -7,13 +7,16 @@
     <title>My subscription page</title>
     <link rel="stylesheet" href="<%= app_url %>/mycss.css" />
     <style>
-
+        div.center {
+            width: 100%;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
     <h1>Your customer data with subscriptions</h1>
-    <div>
+    <div class="center">
         <pre>
             <%= JSON.stringify(json, null, 4) %>
         </pre>
