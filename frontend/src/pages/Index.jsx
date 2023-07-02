@@ -4,8 +4,7 @@ import { getSessionToken } from "@shopify/app-bridge-utils";
 import { Page, Card, ResourceList, Icon, Text } from '@shopify/polaris';
 import { CircleRightMajor } from '@shopify/polaris-icons';
 
-// Index for all sample UIs using ResourceList as a link list.
-// See https://polaris.shopify.com/components/resource-list
+// Index page for this subscription app setup
 function Index() {
     const app = useAppBridge();
     const redirect = Redirect.create(app);    
