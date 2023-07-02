@@ -669,6 +669,7 @@ router.get('/appproxy', async (ctx, next) => {
   }
 
   const shop = ctx.request.query.shop;
+  const customer_id = ctx.request.query.logged_in_customer_id;
 
   const event = typeof ctx.request.query.event !== UNDEFINED ? ctx.request.query.event : '';
   if (event === 'send') {
@@ -700,12 +701,12 @@ router.get('/appproxy', async (ctx, next) => {
     return;
   }
   if (event === 'show') {
-    if (decoded_token == null) {
-      ctx.body = { "Error": "No token passed." };
+    if (decoded_token == null && customer_id === '') {
+      ctx.body = { "Error": "No token passed, or not logged in." };
       ctx.status = 400;
       return;
     }
-    const id = decoded_token.id;
+    const id = decoded_token != null ? decoded_token.id : `gid://shopify/Customer/${customer_id}`;
     const api_res = await (callGraphql(ctx, shop, `{
       customer(id: "${id}") {
         id
