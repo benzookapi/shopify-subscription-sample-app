@@ -14,8 +14,8 @@ const mysub_send = function (shop_url) {
                 html = 'No data found';
             } else {
                 html = `<p>You can access to your subscription page
-                through <a href="${data.link}" target="_blank">this link</a></p>
-                <p>(<b>note that this should be shared by real email sending for real usage!</b>)</p>`;
+                through &#128073;<a href="${data.link}" target="_blank">this link</a><br/>
+                (<b>note that this should be shared by real email sending for real usage!</b>)</p>`;
             }
             window.document.getElementById('mysub_res').innerHTML = html;
         });
