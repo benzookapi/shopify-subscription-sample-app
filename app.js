@@ -716,11 +716,9 @@ router.get('/appproxy', async (ctx, next) => {
         subscriptionContracts(first: 3, reverse: true) {
           edges {
             node {
-              id
               orders(first: 3, reverse: true) {
                 edges {
                   node {
-                    id
                     name
                     createdAt
                     totalPriceSet {
@@ -732,35 +730,31 @@ router.get('/appproxy', async (ctx, next) => {
                     lineItems(first: 3) {
                       edges {
                         node {
-                          id
                           name
                           quantity
                         }
                       }
-                    }           
+                    } 
+                    shippingAddress {
+                      address1
+                      address2
+                      city
+                      province
+                      provinceCode
+                      zip
+                      company
+                      country
+                      countryCodeV2
+                      firstName
+                      lastName
+                      phone
+                    }      
                     fulfillments(first: 3) {
-                      id
                       status
                       trackingInfo(first: 3) {
                         company
                         number
                         url
-                      }
-                      location {
-                        id
-                        address {
-                          address1
-                          address2
-                          city
-                          country
-                          countryCode
-                          latitude
-                          longitude
-                          phone
-                          province
-                          provinceCode
-                          zip
-                        }
                       }
                     }                    
                   }
