@@ -716,6 +716,19 @@ router.get('/appproxy', async (ctx, next) => {
         subscriptionContracts(first: 3, reverse: true) {
           edges {
             node {
+              app {
+                title
+              }
+              customerPaymentMethod {
+                instrument {
+                  ... on CustomerCreditCard {
+                    brand
+                    maskedNumber
+                  }
+                }
+              }
+              lastPaymentStatus
+              nextBillingDate
               orders(first: 3, reverse: true) {
                 edges {
                   node {
