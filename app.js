@@ -805,14 +805,39 @@ router.get('/appproxy', async (ctx, next) => {
           message
         }
       }
-     }
-     `, null, GRAPHQL_PATH_ADMIN, null));
+     }`, null, GRAPHQL_PATH_ADMIN, null));
     if (api_res.data.customerPaymentMethodSendUpdateEmail.userErrors.length > 0) {
       ctx.body = { "Error": `${JSON.stringify(api_res.data.customerPaymentMethodSendUpdateEmail.userErrors)}` };
       ctx.status = 500;
       return;
     } else {
       ctx.body = { "Success": `${api_res.data.customerPaymentMethodSendUpdateEmail.customer.email}` };
+      return;
+    }
+  }
+  if (event === 'update') {
+    const payment_method_id = decoded_token.payment_method_id;
+    if (payment_method_id === '') {
+      ctx.body = { "Error": "No payment_method_id passed." };
+      ctx.status = 400;
+      return;
+    }
+    const api_res = await (callGraphql(ctx, shop, `mutation {
+      customerPaymentMethodGetUpdateUrl(customerPaymentMethodId: "${payment_method_id}") {
+        updatePaymentMethodUrl
+        userErrors {
+          code
+          field
+          message
+        }
+      }
+     }`, null, GRAPHQL_PATH_ADMIN, null));
+    if (api_res.data.customerPaymentMethodGetUpdateUrl.userErrors.length > 0) {
+      ctx.body = { "Error": `${JSON.stringify(api_res.data.customerPaymentMethodGetUpdateUrl.userErrors)}` };
+      ctx.status = 500;
+      return;
+    } else {
+      ctx.body = { "Success": `${api_res.data.customerPaymentMethodGetUpdateUrl.updatePaymentMethodUrl}` };
       return;
     }
   }

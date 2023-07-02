@@ -20,7 +20,14 @@
             <div style="float: left; margin-left: 1em; border: solid;">
                 <button class="Polaris-Button Polaris-Button--primary" type="button" onclick="sendEmail();">
                     <span class="Polaris-Button__Content">
-                        <span class="Polaris-Button__Text">Change my payment method</span>
+                        <span class="Polaris-Button__Text">Send an email to update my payment method</span>
+                    </span>
+                </button>
+            </div>
+            <div style="float: left; margin-left: 1em; border: solid;">
+                <button class="Polaris-Button Polaris-Button--primary" type="button" onclick="sendEmail();">
+                    <span class="Polaris-Button__Content">
+                        <span class="Polaris-Button__Text">Update my payment method here</span>
                     </span>
                 </button>
             </div>
@@ -40,6 +47,7 @@
 
         <script>
             const sendEmail = function () {
+                window.document.getElementById('badge').style.display = 'none';
                 fetch(`mysubpage?event=email&token=<%= token %>`, {
                     method: "GET"
                 }).then((res) => {
@@ -51,9 +59,31 @@
                         console.log(`data: ${JSON.stringify(data)}`);
                         let html = '';
                         if (typeof data.Success === 'undefined') {
-                            html = 'Senind an mail was Failed.';
+                            html = 'Sending an mail was Failed.';
                         } else {
-                            html = `An email was sent to ${data.Success}`;
+                            html = `An email was sent to <b>${data.Success}</b>`;
+                        }
+                        window.document.getElementById('result').innerHTML = html;
+                        window.document.getElementById('badge').style.display = 'inline';
+                    });
+                });
+            };
+            const updatePayment = function () {
+                window.document.getElementById('badge').style.display = 'none';
+                fetch(`mysubpage?event=update&token=<%= token %>`, {
+                    method: "GET"
+                }).then((res) => {
+                    res.json().then((data, errors) => {
+                        if (typeof errors !== 'undefined') {
+                            console.log(`Updating payment errors: ${JSON.stringify(errors)}`);
+                            return;
+                        }
+                        console.log(`data: ${JSON.stringify(data)}`);
+                        let html = '';
+                        if (typeof data.Success === 'undefined') {
+                            html = 'Updating payment was Failed.';
+                        } else {
+                            html = `Click <b><a href="${data.Success}" target="_blank">this link</a></b> to update your payment method.`;
                         }
                         window.document.getElementById('result').innerHTML = html;
                         window.document.getElementById('badge').style.display = 'inline';
