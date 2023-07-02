@@ -713,7 +713,7 @@ router.get('/appproxy', async (ctx, next) => {
         firstName
         lastName
         email
-        subscriptionContracts(first: 10, reverse: true) {
+        subscriptionContracts(first: 3, reverse: true) {
           edges {
             node {
               id
@@ -723,26 +723,46 @@ router.get('/appproxy', async (ctx, next) => {
                     id
                     name
                     createdAt
-                    physicalLocation {
-                      id
-                    }
-                    fulfillable
-                    fulfillments(first: 3) {
-                      id
-                      location {
-                        id
+                    totalPriceSet {
+                      presentmentMoney {
+                        amount
+                        currencyCode
                       }
-                    }
-                    fulfillmentOrders(first: 3, reverse: true) {
+                    }   
+                    lineItems(first: 3) {
                       edges {
                         node {
                           id
-                          createdAt
-                          status
-                          requestStatus
+                          name
+                          quantity
                         }
                       }
-                    }
+                    }           
+                    fulfillments(first: 3) {
+                      id
+                      status
+                      trackingInfo(first: 3) {
+                        company
+                        number
+                        url
+                      }
+                      location {
+                        id
+                        address {
+                          address1
+                          address2
+                          city
+                          country
+                          countryCode
+                          latitude
+                          longitude
+                          phone
+                          province
+                          provinceCode
+                          zip
+                        }
+                      }
+                    }                    
                   }
                 }
               }
