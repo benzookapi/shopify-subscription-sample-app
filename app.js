@@ -670,9 +670,9 @@ router.get('/appproxy', async (ctx, next) => {
 
   const shop = ctx.request.query.shop;
 
-  const event = typeof ctx.request.query.event == !UNDEFINED ? ctx.request.query.event : '';
+  const event = typeof ctx.request.query.event !== UNDEFINED ? ctx.request.query.event : '';
   if (event === 'send') {
-    const email = typeof ctx.request.query.email == !UNDEFINED ? ctx.request.query.email : '';
+    const email = typeof ctx.request.query.email !== UNDEFINED ? ctx.request.query.email : '';
     const api_res = await (callGraphql(ctx, shop, `{
       customers(query: "email:'${email}'", first: 1) {
         edges {
