@@ -46,7 +46,7 @@ Start command = npm run start (= node app.js)
 cd NGROK_DIR && ngrok http 3000
 ```
 
-4. Set `YOUR_APP_URL` (your ngrok or other platform `root` URL) and `YOUR_APP_URL/callback` to your app settings in [partner dashboard](https://partners.shopify.com/) and also **replace `const APP_URL=... in extensions/my-subscription-ext/src/index.jsx` with your current running app url manually**.
+4. Set `YOUR_APP_URL` (your ngrok or other platform `root` URL) and `YOUR_APP_URL/callback` to your app settings in [partner dashboard](https://partners.shopify.com/) and also **replace `const APP_URL=... in extensions/my-subscription-ext/src/index.jsx` with `YOUR_APP_URL` manually**.
 
 5. (For PostgreSQL or MySQL users only,) create the following table in your database (in `psql` or `mysql` command or other tools).
 ```
