@@ -579,6 +579,10 @@ router.get('/subscriptions', async (ctx, next) => {
       // Ship automatically if checked.
       if (fulfill) {
         // Get the latest fullfillment order id with the same query above (the billing attempt mutation response has the old ones only...).
+        // New order creation has some delay, so this demo use dummy delay process (DO NOT THIS FOR REAL PRODUCTION APPS!)
+        const delay = () => { return new Promise((r) => { setTimeout(r, 3 * 1000) }) };
+        console.log(`Starting a dummy second delay...`);
+        await delay();
         const api_res1 = await (callGraphql(ctx, shop, contract_ql, null, GRAPHQL_PATH_ADMIN, null));
         const fulfill_order_id = api_res1.data.subscriptionContract.orders.edges[0].node.fulfillmentOrders.edges[0].node.id;
         // Create a fullfilment of the given  fullfillment order id for automatic shipping.
