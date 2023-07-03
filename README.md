@@ -76,6 +76,9 @@ Or
 
 `you can install to your development stores from the app settings in partner dashboard.`
 
+# Sample list
+
+All sample videos are available at [Wiki](https://github.com/benzookapi/shopify-subscription-sample-app/wiki).
 
 # TIPS
 

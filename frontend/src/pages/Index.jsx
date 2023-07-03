@@ -74,7 +74,7 @@ function Index() {
                                 Go to <Link url={`https://${shop}/account/login`} external={true}>your online store login page</Link> to access to the customer contract details through <Link url={`https://shopify.dev/docs/apps/selling-strategies/purchase-options/customer-portal`} external={true}>the app proxy portal</Link>.
                             </Layout.Section>
                             <Layout.Section>
-                                Clicking <Badge status="info">[Send an email to update my payment method]</Badge> <Link url={`https://shopify.dev/docs/apps/selling-strategies/purchase-options/customer-portal/create-customer-portal`} external={true}>send an email to the customer email address with the checkout link to update their payment method</Link>.
+                                <Badge status="info">[Send an email to update my payment method]</Badge> at the portal page accessed from the link generated above, <Link url={`https://shopify.dev/docs/apps/selling-strategies/purchase-options/customer-portal/create-customer-portal`} external={true}>sends an email to the customer address or update directly (this has some limitations)</Link> with the checkout link to update their payment method.
                             </Layout.Section>
                         </Layout>
                     </AlphaCard>
