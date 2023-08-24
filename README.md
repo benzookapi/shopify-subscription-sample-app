@@ -41,12 +41,12 @@ Build command = npm install && npm run build (= cd frontend && npm install && np
 Start command = npm run start (= node app.js)
 ```
 
-3. If you run locally, you need to ngrok tunnel for public URL as follows (otherwise, the command lines above are usable in Render or other cloud platform deploy scripts).
+3. If you run locally, you need to cloudflare tunnel for public URL as follows (otherwise, the command lines above are usable in Render or other cloud platform deploy scripts).
 ```
-cd NGROK_DIR && ngrok http 3000
+cloudflared tunnel --url localhost:3000 
 ```
 
-4. Set `YOUR_APP_URL` (your ngrok or other platform `root` URL) and `YOUR_APP_URL/callback` to your app settings in [partner dashboard](https://partners.shopify.com/) and also **replace `const APP_URL=... in extensions/my-subscription-ext/src/index.jsx` with `YOUR_APP_URL` manually**.
+4. Set `YOUR_APP_URL` (your cloudflare or other platform `root` URL) and `YOUR_APP_URL/callback` to your app settings in [partner dashboard](https://partners.shopify.com/) and also **replace `const APP_URL=... in extensions/my-subscription-ext/src/index.jsx` with `YOUR_APP_URL` manually**.
 
 5. (For PostgreSQL or MySQL users only,) create the following table in your database (in `psql` or `mysql` command or other tools).
 ```
@@ -59,13 +59,14 @@ For MySQL:
 CREATE TABLE shops ( _id VARCHAR(500) NOT NULL PRIMARY KEY, data JSON NOT NULL, created_at TIMESTAMP NOT NULL, updated_at TIMESTAMP NOT NULL );
 
 ```
-6. For CLI generated extensions, execute `npm run deploy -- --reset` and follow its instruction (choose your partner account, connecting to the exising app, etc.) which registers extensions to your exising app and create `/.env` file which has extensiton ids used by this sample app. After the command ends  successfully, go to the created extension in your [partner dashboard](https://partners.shopify.com/) and enable its dev. preview if available (it's enough for testing in development stores).
 
-7. For updating the extensions, execute `npm run deploy` (without `-- --reset`) to apply (upload) your local modified files to the created extensions (`-- --reset` is used for changing your targeted app only).
+6. Turn **OFF** [Development store preview] in app extensions menu.
 
-8. (For live stores only, you need to create a version of the extension and publish it. See [this step](https://shopify.dev/apps/deployment/extension).)
+7. For CLI generated extensions, execute `npm run deploy -- --reset` and follow its instruction (choose your partner account, connecting to the exising app, etc.) which registers extensions to your exising app and create `/.env` file which has extensiton ids used by this sample app. After the command ends successfully.
 
-9. The customer portal (subscription my page) uses [Shopify App proxies](https://shopify.dev/docs/apps/online-store/app-proxies) and you need to dispatch `YOUR_APP_SERVER_URL/appproxy` (Proxy URL) to `STORE_URL/apps/mysubpage` following [this step](https://shopify.dev/docs/apps/online-store/app-proxies#add-an-app-proxy). Note that the app proxy doesn't accept ngrol bypass URL, so you need a real public endpoint hosted by servers (e.g. Heroku, Fly.io, Render, etc.).
+8. For updating the extensions, execute `npm run deploy` (without `-- --reset`) to apply (upload) your local modified files to the created extensions (`-- --reset` is used for changing your targeted app only).
+
+9. The customer portal (subscription my page) uses [Shopify App proxies](https://shopify.dev/docs/apps/online-store/app-proxies) and you need to dispatch `YOUR_APP_SERVER_URL/appproxy` (Proxy URL) to `STORE_URL/apps/mysubpage` following [this step](https://shopify.dev/docs/apps/online-store/app-proxies#add-an-app-proxy). Note that the app proxy doesn't accept ngrok bypass URL, so you need a real public endpoint hosted by servers (e.g. Heroku, Fly.io, Render, etc.) or cloudflare tunnel above.
 
 
 # How to install
