@@ -17,8 +17,6 @@ const mysql = require('mysql');
 const jwt_decode = require('jwt-decode'); // For client side JWT with no signature validation
 const jwt = require('jsonwebtoken'); // For server side JWT with app secret signature validation
 
-//const { v4: uuidv4 } = require('uuid'); // For JWT sign
-
 const router = new Router();
 const app = module.exports = new Koa();
 
@@ -210,7 +208,7 @@ router.post('/plans', async (ctx, next) => {
 
   const token = getTokenFromAuthHeader(ctx);
   if (!checkAuthFetchToken(token)[0]) {
-    ctx.body.result.message = { "Error": "Signature unmatched. Incorrect authentication bearer sent" };
+    ctx.body = { "Error": "Signature unmatched. Incorrect authentication bearer sent" };
     ctx.status = 400;
     return;
   }

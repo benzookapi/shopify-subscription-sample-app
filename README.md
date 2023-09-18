@@ -1,5 +1,5 @@
 # Overview
-A Runnable Sample Subscrition app based on [Shopify developer document for subscription](https://shopify.dev/docs/apps/selling-strategies/subscriptions/modeling). 
+A runnable sample app of Subscrition based on [Shopify developer document](https://shopify.dev/docs/apps/selling-strategies/subscriptions/modeling)
 
 
 This app is cloned and modified from [this sample](https://github.com/benzookapi/shopify-barebone-app-sample).
@@ -80,6 +80,9 @@ Or
 # Sample list
 
 All sample videos are available at [Wiki](https://github.com/benzookapi/shopify-subscription-sample-app/wiki).
+
+# Trouble shooting
+- If you cannot see any selling plans in your product pages in the storefront through the theme app extension in your dev. store, **try to activate Shopify Payments test mode or PayPal live mode** because Shopify purchase options (subscription / deferred purchase) limit the available payment methods (even if you activate PayPal, you can use Boogus gateway for test credit card payment, tho...).
 
 # TIPS
 - [subscriptionBillingAttemptCreate](https://shopify.dev/docs/api/admin-graphql/unstable/mutations/subscriptionBillingAttemptCreate) is **NOT** guaranteed to has the latest order in its response due to some time lag, and the best way of order fullfillment and billing error hanlding is querying the contract later in a batch process (this sample uses a few second blocking as a synced wait which should not be applied to our live code...).
