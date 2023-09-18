@@ -1,5 +1,5 @@
 # Overview
-A runnable sample app of Subscrition based on [Shopify developer document](https://shopify.dev/docs/apps/selling-strategies/subscriptions/modeling)
+A runnable sample app of Subscriptions based on [Shopify developer document](https://shopify.dev/docs/apps/selling-strategies/subscriptions/modeling)
 
 
 This app is cloned and modified from [this sample](https://github.com/benzookapi/shopify-barebone-app-sample).
