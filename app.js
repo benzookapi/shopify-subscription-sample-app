@@ -187,8 +187,11 @@ router.get('/callback', async (ctx, next) => {
 /* --- Plan create / update CORS endpoint --- */
 // Sandbox Web Workers used by Admin UI Extensions requires CORS access.
 /* Accessed like this from Web Workers.
-fetch(`https://fb34-2400-2410-2fc0-fb00-d4e2-f57f-90a6-bdd6.jp.ngrok.io/create?your_key=your_value&token=YOUR_SESSION_TOKEN`, {
-      method: "POST"
+fetch(`https://project-less-specialty-continuous.trycloudflare.com/plans?your_key=your_value`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${YOUR_SESSION_TOKEN}`,
+      },
     }).then(res => {
       res.json().then(json => {
         console.log(`${JSON.stringify(json)}`);
@@ -208,7 +211,7 @@ router.post('/plans', async (ctx, next) => {
   // if a wrong token is passed with a ummatched signature, decodeJWT fails with an exeption = works as verification as well.
   let decoded_token = null;
   try {
-    decoded_token = decodeJWT(ctx.request.query.token);
+    decoded_token = decodeJWT(getTokenFromAuthHeader(ctx));
   } catch (e) {
     console.log(`${e}`);
   }
@@ -219,7 +222,7 @@ router.post('/plans', async (ctx, next) => {
   }
   console.log(`decoded_token ${JSON.stringify(decoded_token, null, 4)}`);
 
-  const shop = getShopFromAuthToken(ctx.request.query.token);
+  const shop = getShopFromAuthToken(getTokenFromAuthHeader(ctx));
 
   const event = typeof ctx.request.query.event === UNDEFINED ? '' : ctx.request.query.event;
 

@@ -37,7 +37,6 @@ extend(
 
 // *NOTE THAT The raw app url as the backend is not configurable unlike other extensions
 //const APP_URL = `YOUR_APP_URL_IN_APP_SETTINGS (https://xxxxxxx without the last slash '/')`;
-//const APP_URL = `https://bef2-2400-2410-2fc0-fb00-31fd-5cf1-c6e6-1d1b.ngrok-free.app`;
 const APP_URL = `https://shopify-subscription-sample-app.onrender.com`;
 
 // See https://shopify.dev/docs/apps/selling-strategies/purchase-options/app-extensions/extension-points#product-details-page
@@ -54,10 +53,13 @@ function App() {
   if (extensionPoint.indexOf('Edit') != -1) {
     useEffect(() => {
       getSessionToken().then((token) => {
-        const url = `${APP_URL}/plans?token=${token}&group_id=${data.sellingPlanGroupId}`;
+        const url = `${APP_URL}/plans?group_id=${data.sellingPlanGroupId}`;
         console.log(`Accessing... ${url}`);
         fetch(url, {
-          method: "POST"
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }).then(res => {
           res.json().then(json => {
             console.log(`json: ${JSON.stringify(json)}`);
@@ -155,10 +157,13 @@ function Create() {
           <Button title="Cancel" onPress={() => { close(); }}></Button>
           <Button kind="primary" title="Create a plan" onPress={() => {
             getSessionToken().then((token) => {
-              const url = `${APP_URL}/plans?token=${token}&event=create&product_id=${data.productId}&variant_id=${typeof data.variantId === 'undefined' ? '' : data.variantId}&title=${title}&days=${days}`;
+              const url = `${APP_URL}/plans?event=create&product_id=${data.productId}&variant_id=${typeof data.variantId === 'undefined' ? '' : data.variantId}&title=${title}&days=${days}`;
               console.log(`Accessing... ${url}`);
               fetch(url, {
-                method: "POST"
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
               }).then(res => {
                 res.json().then(json => {
                   console.log(`json: ${JSON.stringify(json)}`);

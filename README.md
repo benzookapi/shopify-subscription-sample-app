@@ -81,8 +81,11 @@ Or
 
 All sample videos are available at [Wiki](https://github.com/benzookapi/shopify-subscription-sample-app/wiki).
 
-# TIPS
+# Trouble shooting
+- If you have the error `NotBeforeError: jwt not active` in your cosole running locally (which happens when your serer code receives the session token from the UI extension like adding a selling plan), it is caused by [this reason](https://github.com/auth0/node-jsonwebtoken#notbeforeerror) that the given [nbf](https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.5) in the session token is past than your current timestamp. If you see this often, deploying your code to a hosted server will be better.
 
+# TIPS
+- [subscriptionBillingAttemptCreate](https://shopify.dev/docs/api/admin-graphql/unstable/mutations/subscriptionBillingAttemptCreate) is **NOT** guaranteed to has the latest order in its response due to some time lag, and the best way of order fullfillment and billing error hanlding is querying the contract later in a batch process (this sameple uses a few second blocking as a synced wait which should not be applied to our live code...).
 - You can use the endpoint of `webhookgdpr` for [GDPR Webhooks](https://shopify.dev/docs/apps/store/security/gdpr-webhooks).
 - If you fail to get [protected customer data](https://shopify.dev/docs/apps/store/data-protection/protected-customer-data) in [subscriptionContract query](https://shopify.dev/docs/api/admin-graphql/unstable/queries/subscriptionContract), apply the customer data request from your app settings in partner dashboard and submit your app first (the submission can be in-review, doesn't have to be completed for dev. store testing) which enable you get them. 
 
