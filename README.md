@@ -81,9 +81,6 @@ Or
 
 All sample videos are available at [Wiki](https://github.com/benzookapi/shopify-subscription-sample-app/wiki).
 
-# Trouble shooting
-- If you have the error `NotBeforeError: jwt not active` in your console running locally (which happens when your server code receives the session token from the UI extension like adding a selling plan), it is caused by [this reason](https://github.com/auth0/node-jsonwebtoken#notbeforeerror) that the given [nbf](https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.5) in the session token is past than your current timestamp. If you see this often, deploying your code to a hosted server will be better.
-
 # TIPS
 - [subscriptionBillingAttemptCreate](https://shopify.dev/docs/api/admin-graphql/unstable/mutations/subscriptionBillingAttemptCreate) is **NOT** guaranteed to has the latest order in its response due to some time lag, and the best way of order fullfillment and billing error hanlding is querying the contract later in a batch process (this sample uses a few second blocking as a synced wait which should not be applied to our live code...).
 - You can use the endpoint of `webhookgdpr` for [GDPR Webhooks](https://shopify.dev/docs/apps/store/security/gdpr-webhooks).

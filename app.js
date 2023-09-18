@@ -208,21 +208,14 @@ router.post('/plans', async (ctx, next) => {
   console.log(`query ${JSON.stringify(ctx.request.query, null, 4)}`);
   console.log(`body ${JSON.stringify(ctx.request.body, null, 4)}`);
 
-  // if a wrong token is passed with a ummatched signature, decodeJWT fails with an exeption = works as verification as well.
-  let decoded_token = null;
-  try {
-    decoded_token = decodeJWT(getTokenFromAuthHeader(ctx));
-  } catch (e) {
-    console.log(`${e}`);
-  }
-  if (decoded_token == null) {
-    ctx.body = { "Error": "Wrong token passed." };
+  const token = getTokenFromAuthHeader(ctx);
+  if (!checkAuthFetchToken(token)[0]) {
+    ctx.body.result.message = { "Error": "Signature unmatched. Incorrect authentication bearer sent" };
     ctx.status = 400;
     return;
   }
-  console.log(`decoded_token ${JSON.stringify(decoded_token, null, 4)}`);
 
-  const shop = getShopFromAuthToken(getTokenFromAuthHeader(ctx));
+  const shop = getShopFromAuthToken(token);
 
   const event = typeof ctx.request.query.event === UNDEFINED ? '' : ctx.request.query.event;
 
