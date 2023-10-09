@@ -641,7 +641,6 @@ router.get('/subscriptions', async (ctx, next) => {
 
 /* --- App proxies endpoint for subscription customer portal --- */
 // See https://shopify.dev/apps/online-store/app-proxies
-// Note that ngrok blocks the proxy by default, you have to use other platforms like Render, Fly.io, etc.
 router.get('/appproxy', async (ctx, next) => {
   console.log("+++++++++++++++ /appproxy +++++++++++++++");
   console.log(`request ${JSON.stringify(ctx.request, null, 4)}`);
