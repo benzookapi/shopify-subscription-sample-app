@@ -66,7 +66,7 @@ CREATE TABLE shops ( _id VARCHAR(500) NOT NULL PRIMARY KEY, data JSON NOT NULL, 
 
 8. For updating the extensions, execute `npm run deploy` (without `-- --reset`) to apply (upload) your local modified files to the created extensions (`-- --reset` is used for changing your targeted app only).
 
-9. The customer portal (subscription my page) uses [Shopify App proxies](https://shopify.dev/docs/apps/online-store/app-proxies) and you need to dispatch `YOUR_APP_SERVER_URL/appproxy` (Proxy URL) to `STORE_URL/apps/mysubpage` following [this step](https://shopify.dev/docs/apps/online-store/app-proxies#add-an-app-proxy).
+9. The customer portal (subscription my page) uses [Shopify app proxies](https://shopify.dev/docs/apps/online-store/app-proxies) and you need to dispatch `YOUR_APP_URL/appproxy` (Proxy URL) to `STORE_URL/apps/mysubpage` following [this step](https://shopify.dev/docs/apps/online-store/app-proxies#add-an-app-proxy).
 
 
 # How to install
