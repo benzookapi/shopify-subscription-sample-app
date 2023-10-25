@@ -89,7 +89,7 @@
                             placeholder="20" style="width: 50px;" /> days
                     </div>
                     <div style="margin-bottom: 10px;">
-                        <button class="Polaris-Button" type="button" onclick="updatePayment();">
+                        <button class="Polaris-Button" type="button" onclick="updateInterval();">
                             <span class="Polaris-Button__Content">
                                 <span class="Polaris-Button__Text">Change the interval</span>
                             </span>
@@ -103,7 +103,25 @@
                 </li>
                 <li>
                     <div style="margin-bottom: 10px;">
-                        <button class="Polaris-Button Polaris-Button--primary" type="button" onclick="updatePayment();">
+                        <label for="interval">Currency:</label><input type="text" name="currency" id="currency"
+                            placeholder="USD" style="width: 50px;" />
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <button class="Polaris-Button Polaris-Button--primary" type="button" onclick="updateCurrency();">
+                            <span class="Polaris-Button__Content">
+                                <span class="Polaris-Button__Text">Change the currency</span>
+                            </span>
+                        </button>
+                        &nbsp;
+                        <span class="Polaris-Badge Polaris-Badge--statusInfo" style="display: none;" id="badge3">
+                            <span class="Polaris-Text--root Polaris-Text--visuallyHidden">Info</span>
+                            <span class="Polaris-Text--root Polaris-Text--bodySm" id="result3"></span>
+                        </span>
+                    </div>
+                </li>
+                <li>
+                    <div style="margin-bottom: 10px;">
+                        <button class="Polaris-Button" type="button" onclick="removeLine();">
                             <span class="Polaris-Button__Content">
                                 <span class="Polaris-Button__Text">Remove the first line</span>
                             </span>
@@ -117,9 +135,9 @@
                 </li>
                 <li>
                     <div>
-                        <button class="Polaris-Button" type="button" onclick="updatePayment();">
+                        <button class="Polaris-Button Polaris-Button--primary" type="button" onclick="cancel();">
                             <span class="Polaris-Button__Content">
-                                <span class="Polaris-Button__Text">Cancel this subscription</span>
+                                <span class="Polaris-Button__Text">Cancel the contract</span>
                             </span>
                         </button>
                         &nbsp;
