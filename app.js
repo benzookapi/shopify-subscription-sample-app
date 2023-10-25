@@ -497,6 +497,11 @@ router.get('/subscriptions', async (ctx, next) => {
               id
               title
               variantTitle
+              currentPrice {
+                amount
+                currencyCode
+              }
+              quantity
             }
           }
         }                
@@ -713,9 +718,12 @@ router.get('/appproxy', async (ctx, next) => {
         subscriptionContracts(first: 3, reverse: true) {
           edges {
             node {
+              id
               app {
                 title
               }
+              appAdminUrl
+              currencyCode
               customerPaymentMethod {
                 id
                 instrument {
@@ -727,6 +735,32 @@ router.get('/appproxy', async (ctx, next) => {
               }
               lastPaymentStatus
               nextBillingDate
+              billingPolicy {
+                interval
+                intervalCount
+              }
+              deliveryPolicy {
+                interval
+                intervalCount
+              }
+              lines(first: 10) {
+                edges {
+                  node {
+                    id
+                    currentPrice {
+                      amount
+                      currencyCode
+                    }
+                    productId
+                    quantity
+                    sellingPlanId
+                    sellingPlanName
+                    title
+                    variantId
+                    variantTitle
+                  }
+                }
+              }
               orders(first: 3, reverse: true) {
                 edges {
                   node {
@@ -778,6 +812,10 @@ router.get('/appproxy', async (ctx, next) => {
     }`, null, GRAPHQL_PATH_ADMIN, null));
     return await ctx.render('mypage', {
       app_url: `https://${ctx.request.host}`,
+      id: api_res.data.customer.subscriptionContracts.edges[0].node.id,
+      plan_id: api_res.data.customer.subscriptionContracts.edges[0].node.lines.edges[0].node.sellingPlanId,
+      line_id: api_res.data.customer.subscriptionContracts.edges[0].node.lines.edges[0].node.id,
+      line_price: api_res.data.customer.subscriptionContracts.edges[0].node.lines.edges[0].node.currentPrice.amount,
       json: api_res.data,
       token: createJWT({
         "payment_method_id": api_res.data.customer.subscriptionContracts.edges.length > 0 ? api_res.data.customer.subscriptionContracts.edges[0].node.customerPaymentMethod.id : ''
@@ -833,6 +871,116 @@ router.get('/appproxy', async (ctx, next) => {
       return;
     } else {
       ctx.body = { "Success": `${api_res.data.customerPaymentMethodGetUpdateUrl.updatePaymentMethodUrl}` };
+      return;
+    }
+  }
+  if (event === 'add_line' || event === 'update_line') {
+    const id = ctx.request.query.id;
+    const plan_id = ctx.request.query.plan_id;
+    const variant_id = ctx.request.query.variant_id;
+    const quantity = ctx.request.query.quantity;
+    const line_price = ctx.request.query.line_price;
+    // 1. Call the update mutation to get a draft id.
+    let api_res = await (callGraphql(ctx, shop, `mutation {
+      subscriptionContractUpdate(
+        contractId: "${id}"
+      ) {
+        draft {
+          id
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }`, null, GRAPHQL_PATH_ADMIN, null));
+    if (api_res.data.subscriptionContractUpdate.userErrors.length > 0) {
+      ctx.body = { "Error": `${JSON.stringify(api_res.data.subscriptionContractUpdate.userErrors)}` };
+      return;
+    } else {
+      const draft_id = api_res.data.subscriptionContractUpdate.draft.id;
+      if (event === 'add_line') {
+        // 2. Add a new line with the plan's currency.
+        api_res = await (callGraphql(ctx, shop, `mutation subscriptionDraftLineAdd($draftId: ID!, $input: SubscriptionLineInput!) {
+          subscriptionDraftLineAdd(draftId: $draftId, input: $input) {
+            draft {
+              id
+            }
+            lineAdded {
+              id
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }
+        `, null, GRAPHQL_PATH_ADMIN, {
+          "draftId": draft_id,
+          "input": {
+            "currentPrice": line_price,
+            "productVariantId": variant_id,
+            "quantity": parseInt(quantity),
+            "sellingPlanId": plan_id
+          }
+        }));
+        if (api_res.data.subscriptionDraftLineAdd.userErrors.length > 0) {
+          ctx.body = { "Error": `${JSON.stringify(api_res.data.subscriptionDraftLineAdd.userErrors)}` };
+          return;
+        } else {
+          ctx.body = { "Success": `${api_res.data.subscriptionDraftLineAdd.lineAdded.id}` };
+        }
+      }
+      if (event === 'update_line') {
+        const line_id = ctx.request.query.line_id;
+        // 2. Update the first line with the given currency.
+        api_res = await (callGraphql(ctx, shop, `mutation subscriptionDraftLineUpdate($draftId: ID!, $input: SubscriptionLineUpdateInput!, $lineId: ID!) {
+          subscriptionDraftLineUpdate(draftId: $draftId, input: $input, lineId: $lineId) {
+            draft {
+              id
+            }
+            lineUpdated {
+              id
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }`, null, GRAPHQL_PATH_ADMIN, {
+          "draftId": draft_id,
+          "input": {
+            "currentPrice": line_price,
+            "productVariantId": variant_id,
+            "quantity": parseInt(quantity),
+            "sellingPlanId": plan_id
+          },
+          "lineId": line_id
+        }));
+        if (api_res.data.subscriptionDraftLineUpdate.userErrors.length > 0) {
+          ctx.body = { "Error": `${JSON.stringify(api_res.data.subscriptionDraftLineUpdate.userErrors)}` };
+          return;
+        } else {
+          ctx.body = { "Success": `${api_res.data.subscriptionDraftLineUpdate.lineUpdated.id}` };
+        }
+      }
+      // 3. Commit the draft contract
+      api_res = await (callGraphql(ctx, shop, `mutation {
+        subscriptionDraftCommit(draftId: "${draft_id}") {
+          contract {
+            id
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }`, null, GRAPHQL_PATH_ADMIN, null));
+      if (api_res.data.subscriptionDraftCommit.userErrors.length > 0) {
+        ctx.body = { "Error": `${JSON.stringify(api_res.data.subscriptionDraftCommit.userErrors)}` };
+      } else {
+        ctx.body = { "Success": `${api_res.data.subscriptionDraftCommit.contract.id}` };
+      }
       return;
     }
   }
@@ -1032,7 +1180,7 @@ const accessEndpoint = function (ctx, endpoint, req, token = null, content_type 
     if (token != null) {
       headers['X-Shopify-Access-Token'] = token;
       headers['Content-Length'] = Buffer.byteLength(JSON.stringify(req));
-      headers['User-Agent'] = 'My_Shopify_Barebone_App';
+      headers['User-Agent'] = 'My_Shopify_Subscription_App';
       headers['Host'] = endpoint.split('/')[2];
     }
     console.log(`[ accessEndpoint ] ${JSON.stringify(headers)}`);

@@ -38,13 +38,99 @@
                 </span>
             </div>
             <div style="clear: both;">
-                <p>For the customer portal integration, refer to
+                <p>
                     <a href="https://shopify.dev/docs/apps/selling-strategies/purchase-options/customer-portal/create-customer-portal"
-                        target="_blank">dev. doc</a>.
+                        target="_blank">Dev. doc</a>
                 </p>
             </div>
+            <div style="margin-top: 1em; margin-bottom: 1em;">
+                <h2 class="Polaris-Text--root Polaris-Text--headingxl">Manage your contract</h2>
+                <p>(for the first one only)</p>
+                <p>
+                    <a href="https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/update"
+                        target="_blank">
+                        Dev. doc
+                    </a>
+                </p>
+            </div>
+            <ul>
+                <li>
+                    <div style="margin-bottom: 10px;">
+                        <label for="variant_id">Variant Id:</label><input type="text" name="variant_id" id="variant_id"
+                            placeholder="gid://shopify/ProductVariant/1234567890"
+                            style="width: 350px; margin-right: 5px;" />
+                        <label for="quantity">Quantity:</label><input type="text" name="quantity" id="quantity"
+                            placeholder="1" style="width: 50px; margin-right: 5px;" />
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <button class="Polaris-Button Polaris-Button--primary" type="button"
+                            onclick="changeLine('add_line');">
+                            <span class="Polaris-Button__Content">
+                                <span class="Polaris-Button__Text">Add a new line</span>
+                            </span>
+                        </button>
+                        Or
+                        <button class="Polaris-Button Polaris-Button--primary" type="button"
+                            onclick="changeLine('update_line');">
+                            <span class="Polaris-Button__Content">
+                                <span class="Polaris-Button__Text">Update the first line</span>
+                            </span>
+                        </button>
+                        &nbsp;
+                        <span class="Polaris-Badge Polaris-Badge--statusInfo" style="display: none;" id="badge2">
+                            <span class="Polaris-Text--root Polaris-Text--visuallyHidden">Info</span>
+                            <span class="Polaris-Text--root Polaris-Text--bodySm" id="result2"></span>
+                        </span>
+                    </div>
+                </li>
+                <li>
+                    <div style="margin-bottom: 10px;">
+                        <label for="interval">Interval:</label><input type="text" name="interval" id="interval"
+                            placeholder="20" style="width: 50px;" /> days
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <button class="Polaris-Button" type="button" onclick="updatePayment();">
+                            <span class="Polaris-Button__Content">
+                                <span class="Polaris-Button__Text">Change the interval</span>
+                            </span>
+                        </button>
+                        &nbsp;
+                        <span class="Polaris-Badge Polaris-Badge--statusInfo" style="display: none;" id="badge3">
+                            <span class="Polaris-Text--root Polaris-Text--visuallyHidden">Info</span>
+                            <span class="Polaris-Text--root Polaris-Text--bodySm" id="result3"></span>
+                        </span>
+                    </div>
+                </li>
+                <li>
+                    <div style="margin-bottom: 10px;">
+                        <button class="Polaris-Button Polaris-Button--primary" type="button" onclick="updatePayment();">
+                            <span class="Polaris-Button__Content">
+                                <span class="Polaris-Button__Text">Remove the first line</span>
+                            </span>
+                        </button>
+                        &nbsp;
+                        <span class="Polaris-Badge Polaris-Badge--statusInfo" style="display: none;" id="badge4">
+                            <span class="Polaris-Text--root Polaris-Text--visuallyHidden">Info</span>
+                            <span class="Polaris-Text--root Polaris-Text--bodySm" id="result4"></span>
+                        </span>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <button class="Polaris-Button" type="button" onclick="updatePayment();">
+                            <span class="Polaris-Button__Content">
+                                <span class="Polaris-Button__Text">Cancel this subscription</span>
+                            </span>
+                        </button>
+                        &nbsp;
+                        <span class="Polaris-Badge Polaris-Badge--statusInfo" style="display: none;" id="badge5">
+                            <span class="Polaris-Text--root Polaris-Text--visuallyHidden">Info</span>
+                            <span class="Polaris-Text--root Polaris-Text--bodySm" id="result5"></span>
+                        </span>
+                    </div>
+                </li>
+            </ul>
         </div>
-
         <div>
             <pre>
 <%= JSON.stringify(json, null, 4) %>
@@ -93,6 +179,30 @@
                         }
                         window.document.getElementById('result').innerHTML = html;
                         window.document.getElementById('badge').style.display = 'inline';
+                    });
+                });
+            };
+            const changeLine = function (event) {
+                const variant_id = window.document.getElementById('variant_id').value;
+                const quantity = window.document.getElementById('quantity').value;
+                window.document.getElementById('badge').style.display = 'none';
+                fetch(`mysubpage?event=${event}&token=<%= token %>&id=<%= id %>&plan_id=<%= plan_id %>&line_id=<%= line_id %>&line_price=<%= line_price %>&variant_id=${variant_id}&quantity=${quantity}`, {
+                    method: "GET"
+                }).then((res) => {
+                    res.json().then((data, errors) => {
+                        if (typeof errors !== 'undefined') {
+                            console.log(`Add line errors: ${JSON.stringify(errors)}`);
+                            return;
+                        }
+                        console.log(`data: ${JSON.stringify(data)}`);
+                        let html = '';
+                        if (typeof data.Success === 'undefined') {
+                            html = `Adding a new line was Failed. <b>${data.Error}</b>`;
+                        } else {
+                            html = `Successful! Check the result by <a href="#" onclick="window.location.reload(); return false;">refreshing the page</a>.`;
+                        }
+                        window.document.getElementById('result2').innerHTML = html;
+                        window.document.getElementById('badge2').style.display = 'inline';
                     });
                 });
             };
