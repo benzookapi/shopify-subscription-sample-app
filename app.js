@@ -743,6 +743,7 @@ router.get('/appproxy', async (ctx, next) => {
                 interval
                 intervalCount
               }
+              status
               lines(first: 10) {
                 edges {
                   node {
@@ -809,13 +810,26 @@ router.get('/appproxy', async (ctx, next) => {
           }
         }
       }
+      productVariants(first: 30) {
+        edges {
+          node {
+            id
+            title
+            price
+            product {
+              id
+              title
+            }
+          }
+        }
+      }
     }`, null, GRAPHQL_PATH_ADMIN, null));
     return await ctx.render('mypage', {
       app_url: `https://${ctx.request.host}`,
       id: api_res.data.customer.subscriptionContracts.edges[0].node.id,
       plan_id: api_res.data.customer.subscriptionContracts.edges[0].node.lines.edges[0].node.sellingPlanId,
       line_id: api_res.data.customer.subscriptionContracts.edges[0].node.lines.edges[0].node.id,
-      line_price: api_res.data.customer.subscriptionContracts.edges[0].node.lines.edges[0].node.currentPrice.amount,
+      variants: api_res.data.productVariants.edges.map((e) => { return e.node; }),
       json: api_res.data,
       token: createJWT({
         "payment_method_id": api_res.data.customer.subscriptionContracts.edges.length > 0 ? api_res.data.customer.subscriptionContracts.edges[0].node.customerPaymentMethod.id : ''
@@ -874,12 +888,14 @@ router.get('/appproxy', async (ctx, next) => {
       return;
     }
   }
-  if (event === 'add_line' || event === 'update_line') {
+  if (event === 'add_line' || event === 'update_line' || event === 'remove_line' || event === 'change_interval' || event === 'cancel') {
     const id = ctx.request.query.id;
     const plan_id = ctx.request.query.plan_id;
+    const line_id = ctx.request.query.line_id;
     const variant_id = ctx.request.query.variant_id;
+    const variant_price = ctx.request.query.variant_price;
     const quantity = ctx.request.query.quantity;
-    const line_price = ctx.request.query.line_price;
+    const interval = ctx.request.query.interval;
     // 1. Call the update mutation to get a draft id.
     let api_res = await (callGraphql(ctx, shop, `mutation {
       subscriptionContractUpdate(
@@ -900,7 +916,7 @@ router.get('/appproxy', async (ctx, next) => {
     } else {
       const draft_id = api_res.data.subscriptionContractUpdate.draft.id;
       if (event === 'add_line') {
-        // 2. Add a new line with the plan's currency.
+        // 2. Add a new line.
         api_res = await (callGraphql(ctx, shop, `mutation subscriptionDraftLineAdd($draftId: ID!, $input: SubscriptionLineInput!) {
           subscriptionDraftLineAdd(draftId: $draftId, input: $input) {
             draft {
@@ -918,7 +934,7 @@ router.get('/appproxy', async (ctx, next) => {
         `, null, GRAPHQL_PATH_ADMIN, {
           "draftId": draft_id,
           "input": {
-            "currentPrice": line_price,
+            "currentPrice": variant_price,
             "productVariantId": variant_id,
             "quantity": parseInt(quantity),
             "sellingPlanId": plan_id
@@ -932,8 +948,7 @@ router.get('/appproxy', async (ctx, next) => {
         }
       }
       if (event === 'update_line') {
-        const line_id = ctx.request.query.line_id;
-        // 2. Update the first line with the given currency.
+        // 2. Update the first line.
         api_res = await (callGraphql(ctx, shop, `mutation subscriptionDraftLineUpdate($draftId: ID!, $input: SubscriptionLineUpdateInput!, $lineId: ID!) {
           subscriptionDraftLineUpdate(draftId: $draftId, input: $input, lineId: $lineId) {
             draft {
@@ -950,7 +965,7 @@ router.get('/appproxy', async (ctx, next) => {
         }`, null, GRAPHQL_PATH_ADMIN, {
           "draftId": draft_id,
           "input": {
-            "currentPrice": line_price,
+            "currentPrice": variant_price,
             "productVariantId": variant_id,
             "quantity": parseInt(quantity),
             "sellingPlanId": plan_id
@@ -962,6 +977,89 @@ router.get('/appproxy', async (ctx, next) => {
           return;
         } else {
           ctx.body = { "Success": `${api_res.data.subscriptionDraftLineUpdate.lineUpdated.id}` };
+        }
+      }
+      if (event === 'remove_line') {
+        // 2. Remove the first line.
+        api_res = await (callGraphql(ctx, shop, `mutation subscriptionDraftLineRemove($draftId: ID!, $lineId: ID!) {
+          subscriptionDraftLineRemove(draftId: $draftId, lineId: $lineId) {
+            draft {
+              id
+            }
+            lineRemoved {
+             id
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }`, null, GRAPHQL_PATH_ADMIN, {
+          "draftId": draft_id,
+          "lineId": line_id
+        }));
+        if (api_res.data.subscriptionDraftLineRemove.userErrors.length > 0) {
+          ctx.body = { "Error": `${JSON.stringify(api_res.data.subscriptionDraftLineRemove.userErrors)}` };
+          return;
+        } else {
+          ctx.body = { "Success": `${api_res.data.subscriptionDraftLineRemove.lineRemoved.id}` };
+        }
+      }
+      if (event === 'change_interval') {
+        // 2. Change the interval.
+        api_res = await (callGraphql(ctx, shop, `mutation subscriptionDraftUpdate($draftId: ID!, $input: SubscriptionDraftInput!) {
+          subscriptionDraftUpdate(draftId: $draftId, input: $input) {
+            draft {
+              id
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }`, null, GRAPHQL_PATH_ADMIN, {
+          "draftId": draft_id,
+          "input": {
+            "billingPolicy": {
+              "interval": "DAY",
+              "intervalCount": parseInt(interval)
+            },
+            "deliveryPolicy": {
+              "interval": "DAY",
+              "intervalCount": parseInt(interval)
+            }
+          }
+        }));
+        if (api_res.data.subscriptionDraftUpdate.userErrors.length > 0) {
+          ctx.body = { "Error": `${JSON.stringify(api_res.data.subscriptionDraftUpdate.userErrors)}` };
+          return;
+        } else {
+          ctx.body = { "Success": `${api_res.data.subscriptionDraftUpdate.draft.id}` };
+        }
+      }
+      if (event === 'cancel') {
+        // 2. Cancel the contract.
+        api_res = await (callGraphql(ctx, shop, `mutation subscriptionDraftUpdate($draftId: ID!, $input: SubscriptionDraftInput!) {
+          subscriptionDraftUpdate(draftId: $draftId, input: $input) {
+            draft {
+              id
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }`, null, GRAPHQL_PATH_ADMIN, {
+          "draftId": draft_id,
+          "input": {
+            "status": "CANCELLED"
+          }
+        }));
+        if (api_res.data.subscriptionDraftUpdate.userErrors.length > 0) {
+          ctx.body = { "Error": `${JSON.stringify(api_res.data.subscriptionDraftUpdate.userErrors)}` };
+          return;
+        } else {
+          ctx.body = { "Success": `${api_res.data.subscriptionDraftUpdate.draft.id}` };
         }
       }
       // 3. Commit the draft contract
