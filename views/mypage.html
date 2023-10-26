@@ -143,9 +143,15 @@
                 </li>
                 <li>
                     <div>
-                        <button class="Polaris-Button" type="button" onclick="cancel();">
+                        <button class="Polaris-Button" type="button" onclick="updateStatus('CANCELLED');">
                             <span class="Polaris-Button__Content">
                                 <span class="Polaris-Button__Text">Cancel the contract</span>
+                            </span>
+                        </button>
+                        Or
+                        <button class="Polaris-Button" type="button" onclick="updateStatus('ACTIVE');">
+                            <span class="Polaris-Button__Content">
+                                <span class="Polaris-Button__Text">Activate the contract</span>
                             </span>
                         </button>
                         &nbsp;
@@ -283,20 +289,20 @@
                     });
                 });
             };
-            const cancel = function () {
+            const updateStatus = function (status) {
                 window.document.getElementById('badge5').style.display = 'none';
-                fetch(`mysubpage?event=cancel&id=<%= id %>&plan_id=<%= plan_id %>`, {
+                fetch(`mysubpage?event=update_status&id=<%= id %>&plan_id=<%= plan_id %>&status=${status}`, {
                     method: "GET"
                 }).then((res) => {
                     res.json().then((data, errors) => {
                         if (typeof errors !== 'undefined') {
-                            console.log(`Cancelling errors: ${JSON.stringify(errors)}`);
+                            console.log(`Status update errors: ${JSON.stringify(errors)}`);
                             return;
                         }
                         console.log(`data: ${JSON.stringify(data)}`);
                         let html = '';
                         if (typeof data.Success === 'undefined') {
-                            html = `Cancelling was Failed. <b>${data.Error}</b>`;
+                            html = `Status update was Failed. <b>${data.Error}</b>`;
                         } else {
                             html = `Successful! Check the result by <a href="#" onclick="window.location.reload(); return false;">refreshing the page</a>.`;
                         }
