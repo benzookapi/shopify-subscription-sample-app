@@ -67,8 +67,8 @@ export default function PurchaseOptionsActionExtension(extension) {
     >
       <BlockStack gap="large">
         <Text>{i18n.translate('welcome', extension)}</Text>
-        <Text>This page is buit with <Link target="_blank" href="https://shopify.dev/docs/api/admin-extensions/unstable/components">
-          Components for Admin UI Extensions</Link>.</Text>
+        <Text>{i18n.translate('description')} <Link target="_blank" href="https://shopify.dev/docs/api/admin-extensions/unstable/components">
+          {i18n.translate('component')}</Link></Text>
         <Banner
           status="info"
           title={i18n.translate('banner')}

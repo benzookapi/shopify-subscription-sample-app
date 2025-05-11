@@ -2,6 +2,8 @@
   "name": "私のサブスクリプション拡張機能",
   "title": "私のAdmin Action",
   "welcome": "{{extension}}へようこそ！",
+  "component": "Admin UI Extensionsのコンポーネント",
+  "description": "このページは次のライブラリで作られています：",
   "banner": "定期購買プランの作成",
   "heading1": "選択中のデータ",
   "heading2": "定期購買の詳細の入力",

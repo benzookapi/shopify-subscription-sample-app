@@ -2,6 +2,8 @@
   "name": "My Subscription Extension",
   "title": "My Admin Action",
   "welcome": "Welcome to the {{extension}} extension!",
+  "component": "Components for Admin UI Extensions",
+  "description": "This page is built with the following library:",
   "banner": "Creat a subscription plan",
   "heading1": "Your selected data",
   "heading2": "Input your subscription details",
