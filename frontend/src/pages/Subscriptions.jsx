@@ -7,7 +7,7 @@ import { Page, Card, Layout, Link, Badge, Text, Spinner, Banner, Button, Vertica
 import { _getParamValueFromQuery } from "../utils/my_util";
 
 // Subscription contract admin link
-// See https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/create
+// Read https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/create
 function Subscriptions() {
     const app = useAppBridge();
 
@@ -74,7 +74,7 @@ function Subscriptions() {
                                 <span>&nbsp;</span>
                                 <Button primary onClick={() => {
                                     setResBilling({});
-                                    // See https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/create#example-call
+                                    // Read https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/create#example-call
                                     authenticatedFetch(app)(`/subscriptions?billing=true&id=${id}&fulfill=${fulfill}`).then((response) => {
                                         response.json().then((json) => {
                                             console.log(JSON.stringify(json, null, 4));

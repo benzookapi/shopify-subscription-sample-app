@@ -40,7 +40,6 @@ app.use(serve(__dirname + '/public'));
 const API_KEY = `${process.env.SHOPIFY_API_KEY}`;
 const API_SECRET = `${process.env.SHOPIFY_API_SECRET}`;
 const API_VERSION = `${process.env.SHOPIFY_API_VERSION}`;
-const API_SCOPES = `${process.env.SHOPIFY_API_SCOPES}`;
 
 const CONTENT_TYPE_JSON = 'application/json';
 const CONTENT_TYPE_FORM = 'application/x-www-form-urlencoded';
@@ -72,9 +71,9 @@ const MYSQL_DATABASE = `${process.env.SHOPIFY_MYSQL_DATABASE}`;
 const MYSQL_TABLE = 'shops';
 
 /* --- App top URL reigstered as the base one in the app settings in partner dashbord. --- */
-// See https://shopify.dev/apps/auth/oauth/getting-started
-// See https://shopify.dev/apps/best-practices/performance/admin
-// See https://shopify.dev/apps/tools/app-bridge/updating-overview#ensure-compatibility-with-the-new-shopify-admin-domain
+// Read https://shopify.dev/apps/auth/oauth/getting-started
+// Read https://shopify.dev/apps/best-practices/performance/admin
+// Read https://shopify.dev/apps/tools/app-bridge/updating-overview#ensure-compatibility-with-the-new-shopify-admin-domain
 router.get('/', async (ctx, next) => {
   console.log("+++++++++++++++ / +++++++++++++++");
   if (!checkSignature(ctx.request.query)) {
@@ -109,9 +108,8 @@ router.get('/', async (ctx, next) => {
       }
     }
     if (install) {
-      // See https://shopify.dev/apps/auth/oauth/getting-started
-      const redirectUrl = `https://${shop}/admin/oauth/authorize?client_id=${API_KEY}&scope=${API_SCOPES}&redirect_uri=https://${ctx.request.host}/callback&state=&grant_options[]=`;
-      //const redirectUrl = `https://${getAdminFromShop(shop)}/oauth/authorize?client_id=${API_KEY}&scope=${API_SCOPES}&redirect_uri=https://${ctx.request.host}/callback&state=&grant_options[]=`;
+      // Read https://shopify.dev/apps/auth/oauth/getting-started
+      const redirectUrl = `https://${shop}/admin/oauth/authorize?client_id=${API_KEY}&redirect_uri=https://${ctx.request.host}/callback&state=&grant_options[]=`;
       console.log(`Redirecting to ${redirectUrl} for OAuth flow...`);
       ctx.redirect(redirectUrl);
       return;
@@ -121,14 +119,14 @@ router.get('/', async (ctx, next) => {
     return;
   }
 
-  // See https://shopify.dev/apps/store/security/iframe-protection
+  // Read https://shopify.dev/apps/store/security/iframe-protection
   setContentSecurityPolicy(ctx, shop);
   await ctx.render('index', {});
 
 });
 
 /* --- Callback URL redirected by Shopify after the authentication which needs to be registered as the while listed URL in the app settings in partner dashboard. --- */
-// See https://shopify.dev/apps/auth/oauth/getting-started
+// Read https://shopify.dev/apps/auth/oauth/getting-started
 router.get('/callback', async (ctx, next) => {
   console.log("+++++++++++++++ /callback +++++++++++++++");
   if (!checkSignature(ctx.request.query)) {
@@ -175,9 +173,9 @@ router.get('/callback', async (ctx, next) => {
       }`, res.access_token, GRAPHQL_PATH_ADMIN, null));
   } catch (e) { }
 
-  // See https://shopify.dev/apps/auth/oauth/update
+  // Read https://shopify.dev/apps/auth/oauth/update
   // Do server side redirection because this is NOT embedded ("embedded" parameter is not passed).
-  // See https://shopify.dev/apps/tools/app-bridge/updating-overview#ensure-compatibility-with-the-new-shopify-admin-domain
+  // Read https://shopify.dev/apps/tools/app-bridge/updating-overview#ensure-compatibility-with-the-new-shopify-admin-domain
   ctx.redirect(`https://${getAdminFromShop(shop)}/apps/${api_res.data.app.handle}`);
 
 });
@@ -225,7 +223,7 @@ router.post('/plans', async (ctx, next) => {
   const title = ctx.request.query.title;
   const days = parseInt(ctx.request.query.days);
 
-  // See https://shopify.dev/docs/apps/selling-strategies/subscriptions/selling-plans/manage
+  // Read https://shopify.dev/docs/apps/selling-strategies/subscriptions/selling-plans/manage
   let ql = ``;
   let variables = null;
   switch (event) {
@@ -234,7 +232,7 @@ router.post('/plans', async (ctx, next) => {
       break;
     case 'create':
       // Create a selling plan group to save the merchant's generated selling plans.
-      // See https://shopify.dev/docs/api/admin-graphql/unstable/mutations/sellingPlanGroupCreate
+      // Read https://shopify.dev/docs/api/admin-graphql/unstable/mutations/sellingPlanGroupCreate
       ql = `mutation sellingPlanGroupCreate($input: SellingPlanGroupInput!, $resources: SellingPlanGroupResourceInput!) {
           sellingPlanGroupCreate(input: $input, resources: $resources) {
             sellingPlanGroup {
@@ -301,7 +299,7 @@ router.post('/plans', async (ctx, next) => {
       break;
     default:
       // By default, show the current plan.
-      // See https://shopify.dev/docs/api/admin-graphql/unstable/queries/sellingPlanGroup
+      // Read https://shopify.dev/docs/api/admin-graphql/unstable/queries/sellingPlanGroup
       ql = `{
           sellingPlanGroup(id: "${group_id}") {
             appId
@@ -356,8 +354,8 @@ router.post('/plans', async (ctx, next) => {
 });
 
 // Subscription admin link
-// See https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/create
-// See https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/update
+// Read https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/create
+// Read https://shopify.dev/docs/apps/selling-strategies/subscriptions/contracts/update
 router.get('/subscriptions', async (ctx, next) => {
   console.log("+++++++++++++++ /subscriptions +++++++++++++++");
   console.log(`query ${JSON.stringify(ctx.request.query, null, 4)}`);
@@ -400,7 +398,7 @@ router.get('/subscriptions', async (ctx, next) => {
     }
 
     // Get the subscription contract of the given id.
-    // See https://shopify.dev/docs/api/admin-graphql/unstable/objects/SubscriptionContract
+    // Read https://shopify.dev/docs/api/admin-graphql/unstable/objects/SubscriptionContract
     const contract_ql = `{
       subscriptionContract(id: "gid://shopify/SubscriptionContract/${id}"){
         id
@@ -510,7 +508,7 @@ router.get('/subscriptions', async (ctx, next) => {
     `;
     let ql = contract_ql;
     // Make a billing attempt to create an order with the given contract above.
-    // See https://shopify.dev/docs/api/admin-graphql/unstable/mutations/subscriptionBillingAttemptCreate
+    // Read https://shopify.dev/docs/api/admin-graphql/unstable/mutations/subscriptionBillingAttemptCreate
     if (billing) {
       ql = `mutation {
         subscriptionBillingAttemptCreate(
@@ -645,7 +643,7 @@ router.get('/subscriptions', async (ctx, next) => {
 
 
 /* --- App proxies endpoint for subscription customer portal --- */
-// See https://shopify.dev/apps/online-store/app-proxies
+// Read https://shopify.dev/apps/online-store/app-proxies
 router.get('/appproxy', async (ctx, next) => {
   console.log("+++++++++++++++ /appproxy +++++++++++++++");
   console.log(`request ${JSON.stringify(ctx.request, null, 4)}`);
@@ -1107,7 +1105,7 @@ router.post('/webhookgdpr', async (ctx, next) => {
 });
 
 /* --- Check if the given signature is correct or not --- */
-// See https://shopify.dev/apps/auth/oauth/getting-started#step-2-verify-the-installation-request
+// Read https://shopify.dev/apps/auth/oauth/getting-started#step-2-verify-the-installation-request
 const checkSignature = function (json) {
   let temp = JSON.parse(JSON.stringify(json));
   console.log(`checkSignature ${JSON.stringify(temp)}`);
@@ -1124,7 +1122,7 @@ const checkSignature = function (json) {
 };
 
 /* --- Check if the given signature is correct or not for app proxies --- */
-// See https://shopify.dev/apps/online-store/app-proxies#calculate-a-digital-signature
+// Read https://shopify.dev/apps/online-store/app-proxies#calculate-a-digital-signature
 const checkAppProxySignature = function (json) {
   let temp = JSON.parse(JSON.stringify(json));
   console.log(`checkAppProxySignature ${JSON.stringify(temp)}`);
@@ -1141,7 +1139,7 @@ const checkAppProxySignature = function (json) {
 };
 
 /* --- Check if the given signarure is corect or not for Webhook --- */
-// See https://shopify.dev/apps/webhooks/configuration/https#step-5-verify-the-webhook
+// Read https://shopify.dev/apps/webhooks/configuration/https#step-5-verify-the-webhook
 const checkWebhookSignature = function (ctx, secret) {
   return new Promise(function (resolve, reject) {
     console.log(`checkWebhookSignature Headers ${JSON.stringify(ctx.headers)}`);
@@ -1157,13 +1155,13 @@ const checkWebhookSignature = function (ctx, secret) {
 };
 
 /* --- Get a token string from a given authorization header --- */
-// See https://shopify.dev/apps/auth/oauth/session-tokens/getting-started#step-2-authenticate-your-requests
+// Read https://shopify.dev/apps/auth/oauth/session-tokens/getting-started#step-2-authenticate-your-requests
 const getTokenFromAuthHeader = function (ctx) {
   return ctx.request.header.authorization.replace('Bearer ', '');
 };
 
 /* --- Get a shop from a token from a given authorization header --- */
-// See https://shopify.dev/apps/auth/oauth/session-tokens/getting-started#optional-obtain-session-details-and-verify-the-session-token-manually
+// Read https://shopify.dev/apps/auth/oauth/session-tokens/getting-started#optional-obtain-session-details-and-verify-the-session-token-manually
 const getShopFromAuthToken = function (token) {
   const payload = jwt_decode(token);
   console.log(`payload: ${JSON.stringify(payload, null, 4)}`);
@@ -1171,7 +1169,7 @@ const getShopFromAuthToken = function (token) {
 };
 
 /* --- Check if the given signarure is corect or not for App Bridge authenticated requests --- */
-// See https://shopify.dev/apps/auth/oauth/session-tokens/getting-started#verify-the-session-tokens-signature
+// Read https://shopify.dev/apps/auth/oauth/session-tokens/getting-started#verify-the-session-tokens-signature
 const checkAuthFetchToken = function (token) {
   const [header, payload, signature] = token.split("\.");
   console.log(`checkAuthFetchToken header: ${header} payload: ${payload} signature: ${signature}`);
@@ -1198,14 +1196,14 @@ const getIdFromShop = function (shop) {
 };
 
 /* --- Get Admin domain and path from shop domain --- */
-// See https://shopify.dev/apps/tools/app-bridge/updating-overview#ensure-compatibility-with-the-new-shopify-admin-domain
-// See https://www.shopify.com/partners/blog/september-product-updates-for-partners-and-developers
+// Read https://shopify.dev/apps/tools/app-bridge/updating-overview#ensure-compatibility-with-the-new-shopify-admin-domain
+// Read https://www.shopify.com/partners/blog/september-product-updates-for-partners-and-developers
 const getAdminFromShop = function (shop) {
   return `admin.shopify.com/store/${getIdFromShop(shop)}`;
 };
 
 /* --- Set Content-Security-Policy header for admin embedded types --- */
-// See https://shopify.dev/apps/store/security/iframe-protection
+// Read https://shopify.dev/apps/store/security/iframe-protection
 const setContentSecurityPolicy = function (ctx, shop) {
   if (isEmbedded(ctx)) {
     ctx.response.set('Content-Security-Policy', `frame-ancestors https://${shop} https://admin.shopify.com;`);

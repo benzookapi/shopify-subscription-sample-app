@@ -1,0 +1,4 @@
+{
+  "name": "My Subscription Extension",
+  "welcome": "Welcome to the {{extension}} extension!"
+}

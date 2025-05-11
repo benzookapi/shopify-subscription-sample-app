@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   render,
   extend,
-  useExtensionApi,
+  useApi,
   useData,
   useSessionToken,
   useContainer,
@@ -15,7 +15,7 @@ import {
   Button,
   Banner,
   Link
-} from '@shopify/admin-ui-extensions-react';
+} from '@shopify/ui-extensions-react/admin';
 
 // Your extension must render all four modes
 extend(
@@ -39,9 +39,9 @@ extend(
 //const APP_URL = `YOUR_APP_URL_IN_APP_SETTINGS (https://xxxxxxx without the last slash '/')`;
 const APP_URL = `https://shopify-subscription-sample-app.onrender.com`;
 
-// See https://shopify.dev/docs/apps/selling-strategies/purchase-options/app-extensions/extension-points#product-details-page
+// Read https://shopify.dev/docs/apps/selling-strategies/purchase-options/app-extensions/extension-points#product-details-page
 function App() {
-  const { extensionPoint } = useExtensionApi();
+  const { extensionPoint } = useApi();
   const data = useData();
   const { getSessionToken } = useSessionToken();
   const { close, done } = useContainer();
@@ -77,7 +77,7 @@ function App() {
   return (
     <BlockStack>
       <TextBlock>Welcome to the {extensionPoint} extension!</TextBlock>
-      <TextBlock>For selling plan Add / Edit / Remove, refer to <Link external="true" url="https://shopify.dev/docs/apps/selling-strategies/subscriptions/selling-plans/manage">
+      <TextBlock>For selling plan Add / Edit / Remove, refer to <Link target="_blank" href="https://shopify.dev/docs/apps/selling-strategies/subscriptions/selling-plans/manage">
         Shopify dev. site tutorials</Link> to integrate them.</TextBlock>
       <TextBlock>This page is buit with <Link external="true" url="https://shopify.dev/docs/api/admin-extensions/components">
         Components for Admin UI Extensions</Link>.</TextBlock>
@@ -102,8 +102,8 @@ function App() {
   );
 }
 
-// See https://shopify.dev/docs/apps/selling-strategies/purchase-options/app-extensions
-// See https://shopify.dev/docs/api/admin-extensions
+// Read https://shopify.dev/docs/apps/selling-strategies/purchase-options/app-extensions
+// Read https://shopify.dev/docs/api/admin-extensions
 // Sample: https://github.com/Shopify/admin-ui-extensions-template/blob/main/scripts/generate/templates/PRODUCT_SUBSCRIPTION/react.template.js
 function Create() {
   const { extensionPoint } = useExtensionApi();
