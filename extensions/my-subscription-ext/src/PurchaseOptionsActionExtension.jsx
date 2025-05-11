@@ -53,7 +53,7 @@ export default function PurchaseOptionsActionExtension(extension) {
       loading={loading}
       title={i18n.translate('title')}
       primaryAction={
-        <Button onPress={handleSave}>Save</Button>
+        <Button onPress={handleSave}>{i18n.translate('save')}</Button>
       }
       secondaryAction={
         <Button
@@ -61,7 +61,7 @@ export default function PurchaseOptionsActionExtension(extension) {
             close();
           }}
         >
-          Cancel
+          {i18n.translate('cancel')}
         </Button>
       }
     >
@@ -76,10 +76,10 @@ export default function PurchaseOptionsActionExtension(extension) {
         </Banner>
         <Section heading={i18n.translate('heading1')}>
           <InlineStack>
-            <Text fontWeight="bold">{i18n.translate('product')}: &nbsp;</Text><Text fontStyle="italic">{productId}</Text>
+            <Text fontWeight="bold">{i18n.translate('product')}: &nbsp;</Text><Text>{productId}</Text>
           </InlineStack>
           <InlineStack>
-            <Text fontWeight="bold">{i18n.translate('variant')}: &nbsp;</Text><Text fontStyle="italic">{variantId}</Text>
+            <Text fontWeight="bold">{i18n.translate('variant')}: &nbsp;</Text><Text>{variantId}</Text>
           </InlineStack>
         </Section>
         <Section heading={i18n.translate('heading2')}>
