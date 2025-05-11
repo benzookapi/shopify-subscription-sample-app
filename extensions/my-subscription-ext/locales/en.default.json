@@ -1,4 +1,14 @@
 {
   "name": "My Subscription Extension",
-  "welcome": "Welcome to the {{extension}} extension!"
+  "title": "My Admin Action",
+  "welcome": "Welcome to the {{extension}} extension!",
+  "banner": "Creat a subscription plan",
+  "heading1": "Your selected data",
+  "heading2": "Input your subscription details",
+  "label1": "Plan name",
+  "label2": "Delivery frequency in DAYS",
+  "product": "Product",
+  "variant": "Variant",
+  "save": "Save",
+  "cancel": "Cancel"
 }

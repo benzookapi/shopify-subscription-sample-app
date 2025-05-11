@@ -1,4 +1,14 @@
 {
   "name": "私のサブスクリプション拡張機能",
-  "welcome": "{{extension}}へようこそ！"
+  "title": "私のAdmin Action",
+  "welcome": "{{extension}}へようこそ！",
+  "banner": "定期購買プランの作成",
+  "heading1": "選択中のデータ",
+  "heading2": "定期購買の詳細の入力",
+  "label1": "プラン名",
+  "label2": "日単位での発送頻度",
+  "product": "商品",
+  "variant": "バリエーション",
+  "save": "保存",
+  "cancel": "キャンセル"
 }

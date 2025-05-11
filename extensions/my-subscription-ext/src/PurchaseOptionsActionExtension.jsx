@@ -24,19 +24,18 @@ export default function PurchaseOptionsActionExtension(extension) {
   const variantId = data.selected[0].id.indexOf('gid://shopify/ProductVariant/') === 0
     ? data.selected[0].id : '';
 
+  const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState('');
   const titleChange = useCallback((newTitle) => setTitle(newTitle), []);
   const [days, setDays] = useState(1);
   const daysChange = useCallback((newDays) => setDays(newDays), []);
 
   function handleSave() {
+    setLoading(true);
     const url = `/plans?event=create&product_id=${productId}&variant_id=${variantId}&title=${title}&days=${days}`;
     console.log(`Accessing... ${url}`);
     fetch(url, {
       method: "POST",
-      /*headers: {
-        Authorization: `Bearer ${token}`,
-      },*/
     }).then(res => {
       res.json().then(json => {
         console.log(`json: ${JSON.stringify(json)}`);
@@ -51,8 +50,8 @@ export default function PurchaseOptionsActionExtension(extension) {
 
   return (
     <AdminAction
-      loading={true}
-      title="My App Action"
+      loading={loading}
+      title={i18n.translate('title')}
       primaryAction={
         <Button onPress={handleSave}>Save</Button>
       }
@@ -72,28 +71,28 @@ export default function PurchaseOptionsActionExtension(extension) {
           Components for Admin UI Extensions</Link>.</Text>
         <Banner
           status="info"
-          title="Creat a subscription plan"
+          title={i18n.translate('banner')}
         >
         </Banner>
-        <Section heading="Your selected data">
+        <Section heading={i18n.translate('heading1')}>
           <InlineStack>
-            <Text fontWeight="bold">Product: &nbsp;</Text><Text fontStyle="italic">{productId}</Text>
+            <Text fontWeight="bold">{i18n.translate('product')}: &nbsp;</Text><Text fontStyle="italic">{productId}</Text>
           </InlineStack>
           <InlineStack>
-            <Text fontWeight="bold">Variant: &nbsp;</Text><Text fontStyle="italic">{variantId}</Text>
+            <Text fontWeight="bold">{i18n.translate('variant')}: &nbsp;</Text><Text fontStyle="italic">{variantId}</Text>
           </InlineStack>
         </Section>
-        <Section heading="Input your subscription details">
+        <Section heading={i18n.translate('heading2')}>
           <InlineStack>
             <TextField
-              label="Plan name"
+              label={i18n.translate('label1')}
               value={title}
               onChange={(value) => { titleChange(value); }}
             />
           </InlineStack>
           <InlineStack>
             <TextField
-              label="Delivery frequency in DAYS"
+              label={i18n.translate('label2')}
               value={days}
               onChange={(value) => { daysChange(value); }}
             />

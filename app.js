@@ -70,10 +70,9 @@ const MYSQL_PASSWORD = `${process.env.SHOPIFY_MYSQL_PASSWORD}`;
 const MYSQL_DATABASE = `${process.env.SHOPIFY_MYSQL_DATABASE}`;
 const MYSQL_TABLE = 'shops';
 
-/* --- App top URL reigstered as the base one in the app settings in partner dashbord. --- */
-// Read https://shopify.dev/apps/auth/oauth/getting-started
-// Read https://shopify.dev/apps/best-practices/performance/admin
-// Read https://shopify.dev/apps/tools/app-bridge/updating-overview#ensure-compatibility-with-the-new-shopify-admin-domain
+/* --- App root URL reigstered in the app settings manually or by `shopify app deploy` with `shopify.app.toml`. --- */
+// Read https://shopify.dev/apps/auth/oauth/getting-started For the OAuth flow
+// Read https://shopify.dev/apps/best-practices/performance/admin For the embedded app
 router.get('/', async (ctx, next) => {
   console.log("+++++++++++++++ / +++++++++++++++");
   if (!checkSignature(ctx.request.query)) {
@@ -218,7 +217,6 @@ router.post('/plans', async (ctx, next) => {
   const product_id = ctx.request.query.product_id;
   const variant_id = ctx.request.query.variant_id;
   const group_id = ctx.request.query.group_id;
-  const variants = ctx.request.query.variants;
 
   const title = ctx.request.query.title;
   const days = parseInt(ctx.request.query.days);
@@ -284,9 +282,7 @@ router.post('/plans', async (ctx, next) => {
           ]
         },
         "resources": {
-          "productIds": [
-            product_id
-          ],
+          "productIds": (product_id === '' ? [] : [product_id]),
           "productVariantIds": (variant_id === '' ? [] : [variant_id])
         }
       };
